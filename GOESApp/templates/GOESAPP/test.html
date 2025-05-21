@@ -1,0 +1,106 @@
+  <footer>
+    <div class="container">
+      <div class="row footer-links">
+        <div class="col-md-4 mb-4">
+          <h5>Contact Us</h5>
+          <p>
+            Phone: <a href="tel:+2348175327612">+2348175327612</a><br>
+            Instagram: <a href="https://www.instagram.com/godoneveryside/" target="_blank">@godoneveryside</a>
+          </p>
+        </div>
+        <div class="col-md-4 mb-4">
+          <h5>Quick Links</h5>
+          <a href="{% url 'home' %}">Home</a>
+          <a href="{% url 'shop' %}">New Arrivals</a>
+          <a href="{% url 'cart' %}">Cart</a>
+          <a href="{% url 'profile' %}">Orders</a>
+        </div>
+        <div class="col-md-4 mb-4">
+          <h5>About</h5>
+          <p>Follow us: <a href="https://www.instagram.com/godoneveryside/" target="_blank" style="color: #555; text-decoration: none;"><i class="bi bi-instagram"></i> @godoneveryside</a></p>
+
+        </div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center py-3 border-top">
+        <div>
+          <i class="bi bi-credit-card"></i> <i class="bi bi-paypal"></i>
+        </div>
+        <div>
+          Find us here: 
+          <a href="https://www.instagram.com/godoneveryside/" target="_blank" class="text-dark"><i class="bi bi-instagram"></i></a>
+        </div>
+      </div>
+      <div class="text-center py-3 text-muted">
+        © 2025 All Rights Reserved. GOES - God On Every Side
+      </div>
+    </div>
+  </footer>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+    <div class="container">
+      <div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-hh9pp43d mcb-item-header_logo-inner">
+        <a class="logo-wrapper" href="{% url 'home' %}">
+          <img style="width:100px;" src="{% static 'images/LOGO_20_TRANS[1].png'%}" alt="clothingstore2" />
+        </a>
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'shop' %}">New Arrivals</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="collectionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Collections
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="collectionsDropdown">
+              {% for category in categories %}
+                <li><a class="dropdown-item" href="{% url 'shop' %}?category={{ category.id }}">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile' %}" >Orders</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if user.is_authenticated %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3">
+              <a class="nav-link" href="{% url 'profile' %}" title="Your Account">
+                <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-primary" href="{% url 'logout_user' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3"><a class="btn btn-outline-primary" href="{% url 'login_user' %}">Login</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
