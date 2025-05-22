@@ -5922,7 +5922,7 @@
 				<a href="{% url 'shop' %}" style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: #13162f; text-decoration: none; font-weight: normal; margin-right: 16px;">New Arrivals</a>
 				<div class="dropdown" style="position: relative;">
 					<a href="#" class="dropdown-toggle" id="collectionsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: #13162f; text-decoration: none; font-weight: normal; margin-right: 16px;">
-					Collections
+					Shop
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="collectionsDropdown" style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: lighter;">
 					{% for category in categories %}
@@ -5930,7 +5930,8 @@
 					{% endfor %}
 					</ul>
 				</div>
-				<a href="https://www.instagram.com/godoneveryside/" target="_blank" style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: #13162f; text-decoration: none; font-weight: normal; margin-right: 32px;">Instagram</a>
+				<a href="{% url 'our_story' %}"  style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: #13162f; text-decoration: none; font-weight: normal; margin-right: 32px;">Our Story</a>
+				<a href="{% url 'policies' %}"  style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: #13162f; text-decoration: none; font-weight: normal; margin-right: 32px;">Policies</a>
 				<!-- Icons -->
 				<a href="{% url 'cart' %}" style="margin-right: 18px; color: #13162f; position: relative;">
 					<i class="fa fa-shopping-cart" style="font-size: 1.7rem; font-weight: bold;"></i>
@@ -5962,14 +5963,15 @@
 			<ul>
 				<li><a href="{% url 'shop' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal; ">New Arrivals</a></li>
 				<li>
-				<a href="#" class="mobile-dropdown-toggle" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Collections <i class="fa fa-chevron-down" style="font-size: 0.9rem;"></i></a>
+				<a href="#" class="mobile-dropdown-toggle" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Shop <i class="fa fa-chevron-down" style="font-size: 0.9rem;"></i></a>
 				<ul class="mobile-dropdown-menu" style="display: none; list-style: none; padding: 0; margin: 10px 0 24px 20px;">
 					{% for category in categories %}
 					<li><a href="{% url 'shop' %}?category={{ category.id }}" style="font-family: 'Poppins', sans-serif; font-size: 1rem; padding: 10px 18px; font-weight: normal;">{{ category.name }}</a></li>
 					{% endfor %}
 				</ul>
 				</li>
-				<li><a href="https://www.instagram.com/yourbrand" target="_blank" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Instagram</a></li>
+				<li><a href="{% url 'our_story' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Our Story</a></li>
+				<li><a href="{% url 'policies' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Policies</a></li>
 				<li>
 				<a href="{% url 'cart' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal;">
 					<i class="fa fa-shopping-cart"></i>
@@ -6824,7 +6826,7 @@
 													style>
 													<div
 														class="mcb-column-inner mfn-module-wrapper mcb-column-inner-2bc23c460 mcb-item-button-inner">
-														<a class="button  button_full_width button_size_2" href="#"
+														<a class="button  button_full_width button_size_2" href="{% url 'shop' %}"
 															title><span class="button_label">SEE MORE</span></a>
 													</div>
 												</div>
@@ -6921,10 +6923,11 @@
 											class="mcb-column-inner mfn-module-wrapper mcb-column-inner-39067db51 mcb-item-footer_menu-inner">
 											<ul class="mfn-footer-menu mfn-footer-menu-style-vertical">
 												<li><a href="{% url 'shop' %}">New Arrivals</a></li>
-												<li><a href="{% url 'shop' %}">Collections</a></li>
-												<li><a href="https://www.instagram.com/godoneveryside/" target="_blank">Instagram</a></li>
+												<li><a href="{% url 'shop' %}">Shop</a></li>
+												<li><a href="{% url 'our_story' %}" >Our Story</a></li>
 												<li><a href="{% url 'cart' %}">Cart</a></li>
 												<li><a href="{% url 'profile' %}">Profile</a></li>
+												<li><a href="{% url 'policies' %}">Policies</a></li>
 											</ul>
 										</div>
 									</div>
@@ -6943,7 +6946,7 @@
 										class="column mcb-column mcb-item-da11528f1 one laptop-one tablet-one mobile-one column_heading">
 										<div
 											class="mcb-column-inner mfn-module-wrapper mcb-column-inner-da11528f1 mcb-item-heading-inner">
-											<h6 class="title">Collections</h6>
+											<h6 class="title">Shop</h6>
 										</div>
 									</div>
 									<div
@@ -7147,7 +7150,7 @@
 
 				<div class="header">
 					<a target="_blank"
-						href="https://muffingroup.com/betheme/?utm_source=demos">
+						href="">
 						<!-- <span class="title">Now <span class="be">700+</span> pre-built websites</span> -->
 					</a>
 				</div>
@@ -7419,11 +7422,6 @@
 					</ul>
 				</div>
 
-				<div class="footer">
-					<a target="_blank"
-						href="https://muffingroup.com/betheme/websites/?utm_source=demos">See all
-						websites</a>
-				</div>
 
 			</div>
 

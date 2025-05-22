@@ -29,7 +29,7 @@ class RegisterForm(UserCreationForm):
           'state':       self.cleaned_data.get('state'),
           'postal_code': self.cleaned_data.get('postal_code'),
           'country':     self.cleaned_data.get('country'),
-          'phone_number': self.cleaned_data.get('phone_number'),
+          'phone_number':self.cleaned_data.get('phone_number'),
         }
         address = Address.objects.create(**addr_data)
         user.address = address

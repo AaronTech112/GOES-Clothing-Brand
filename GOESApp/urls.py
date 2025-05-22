@@ -22,5 +22,7 @@ urlpatterns = [
     path('thank-you/<int:transaction_id>/', views.thank_you, name='thank_you'), 
     path('order-detail/<int:transaction_id>/', views.order_detail, name='order_detail'),
     path('order-detail/<int:transaction_id>/', views.order_detail, name='order_detail'),
+    path('our-story/', views.our_story, name='our_story'),
+    path('policies/', views.policies, name='policies'),  
 
 ]

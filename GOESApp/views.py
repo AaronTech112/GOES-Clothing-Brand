@@ -446,3 +446,25 @@ def product_detail(request, product_id):
         'categories': categories,
     }
     return render(request, 'GOESAPP/product_detail.html', context)
+
+# views.py
+def our_story(request):
+    categories = Category.objects.all()
+    cart_count = Cart.objects.get(user=request.user).items.count() if request.user.is_authenticated else 0
+
+    context = {
+        'categories': categories,
+        'cart_count': cart_count,
+    }
+    return render(request, 'GOESAPP/our_story.html', context)
+
+# views.py
+def policies(request):
+    categories = Category.objects.all()
+    cart_count = Cart.objects.get(user=request.user).items.count() if request.user.is_authenticated else 0
+
+    context = {
+        'categories': categories,
+        'cart_count': cart_count,
+    }
+    return render(request, 'GOESAPP/policies.html', context)
