@@ -10,6 +10,7 @@ from django.views.decorators.http import require_POST
 import uuid
 import requests
 from django.conf import settings
+from django.db.models import Q
 
 # Create your views here.
 def home(request):
@@ -23,18 +24,34 @@ def home(request):
 
 def shop(request):
     category_id = request.GET.get('category')
+    search_query = request.GET.get('search', '').strip()
+    
+    # Base query for active products
     products = Product.objects.filter(is_active=True)
+    
+    # Apply category filter
     if category_id and category_id != 'all':
         products = products.filter(category_id=category_id)
+    
+    # Apply search filter
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(category__name__icontains=search_query)
+        )
+    
+    # Order products
     products = products.order_by('name')
+    
+    # Get all categories
     categories = Category.objects.all()
+    
     context = {
         'products': products,
         'categories': categories,
         'cart_count': cart_item_count(request)['cart_count'],
     }
     return render(request, 'GOESAPP/shop.html', context)
-
 @login_required(login_url='/login_user')
 def checkout(request):
     categories = Category.objects.all()

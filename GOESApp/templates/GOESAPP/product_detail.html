@@ -177,20 +177,20 @@
         <p class="h4 mb-3">₦{{ product.price|floatformat:2 }}</p>
         <!-- Color & Size Pickers -->
         <div class="d-flex align-items-center mb-3">
-          <span class="me-3">Color:</span>
+          {% comment %} <span class="me-3">Color:</span>
           <div class="btn-group color-picker" role="group">
             {% for color in product.available_colors %}
               <button type="button" class="btn" style="background:{{ color.code }};"></button>
             {% endfor %}
-          </div>
+          </div> {% endcomment %}
         </div>
         <div class="d-flex align-items-center mb-4">
-          <span class="me-3">Size:</span>
+          {% comment %} <span class="me-3">Size:</span>
           <div class="btn-group size-picker" role="group">
             {% for size in product.available_sizes %}
               <button type="button" class="btn btn-outline-secondary">{{ size }}</button>
             {% endfor %}
-          </div>
+          </div> {% endcomment %}
         </div>
         <!-- Quantity & Add -->
         <form method="POST" action="{% url 'add_to_cart' product.id %}" class="d-flex align-items-center mb-4 quantity-control">
