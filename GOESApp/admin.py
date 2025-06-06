@@ -11,6 +11,7 @@ from .models import (
     Transaction,
     Cart,
     CartItem,
+    Newsletter,
 )
 
 @admin.register(CustomUser)
@@ -88,3 +89,8 @@ class CartAdmin(admin.ModelAdmin):
 class CartItemAdmin(admin.ModelAdmin):
     list_display = ('cart', 'product', 'quantity')
     search_fields = ('product__name',)
+
+@admin.register(Newsletter)
+class NewsletterAdmin(admin.ModelAdmin):
+    list_display = ('email', 'created_at')
+    search_fields = ('email',)

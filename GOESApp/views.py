@@ -2,25 +2,70 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm , CheckoutForm, AddressForm
+from .forms import RegisterForm , CheckoutForm, AddressForm, NewsletterForm
 from django.contrib import messages
-from .models import Cart, CartItem, Product, Category,Transaction
+from .models import Cart, CartItem, Product, Category,Transaction, Newsletter
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
 import requests
 from django.conf import settings
 from django.db.models import Q
+from django.core.mail import send_mass_mail
 
 # Create your views here.
 def home(request):
+    if request.method == 'POST':
+        form = NewsletterForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            if not Newsletter.objects.filter(email=email).exists():
+                Newsletter.objects.create(email=email)
+                messages.success(request, 'Thank you for subscribing!')
+                return redirect('home')
+            else:
+                messages.warning(request, 'This email is already subscribed.')
+                return redirect('home')    
+    else:
+        form = NewsletterForm()
+        
     products = Product.objects.filter(is_active=True).order_by('name')
     categories = Category.objects.all()
     context = {
         'products': products,
         'categories': categories,
+        'form': form,
     }
-    return render(request, 'GOESAPP/index.html', context)
+    return render(request, 'GOESAPP/index.html', context) 
+
+from django.core.mail import EmailMultiAlternatives
+def send_newsletter(request):
+    if request.method == 'POST':
+        subject = request.POST.get('subject')
+        text_content = request.POST.get('message')
+        html_content = f'<h2>{subject}</h2><p>{text_content}</p>'
+        subscribers = Newsletter.objects.values_list('email', flat=True)
+
+        if not subscribers:
+            messages.error(request, 'No subscribers found.')
+            return redirect('send_newsletter')
+
+        try:
+            for subscriber in subscribers:
+                email = EmailMultiAlternatives(
+                    subject=subject,
+                    body=text_content,
+                    from_email='abdullahiaaron112@gmail.com',
+                    to=[subscriber]
+                )
+                email.attach_alternative(html_content, "text/html")
+                email.send()
+            messages.success(request, 'Newsletter sent successfully!')
+        except Exception as e:
+            messages.error(request, f'Failed to send newsletter: {str(e)}')
+
+        return redirect('send_newsletter')
+    return render(request, 'GOESAPP/send_newsletter.html')
 
 def shop(request):
     category_id = request.GET.get('category')
@@ -485,3 +530,5 @@ def policies(request):
         'cart_count': cart_count,
     }
     return render(request, 'GOESAPP/policies.html', context)
+
+

@@ -1,7 +1,7 @@
 # forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Address
+from .models import CustomUser, Address, Newsletter
 
 class RegisterForm(UserCreationForm):
     street      = forms.CharField(max_length=255, required=False)
@@ -68,3 +68,7 @@ class AddressForm(forms.ModelForm):
             'country': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter country'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Phone Number'}),
         }
+        
+
+class NewsletterForm(forms.Form):
+    email = forms.EmailField(label='Email', max_length=255)

@@ -179,7 +179,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="btn btn-outline-primary" href="{% url 'logout_user' %}">Logout</a>
+              <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Logout</a>
             </li>
           {% else %}
             <li class="nav-item me-3">
@@ -259,46 +259,99 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <div class="row footer-links">
-        <div class="col-md-4 mb-4">
-          <h5>Contact Us</h5>
-          <p>
-            Phone: <a href="tel:+2348175327612">+2348175327612</a><br>
-            Instagram: <a href="https://www.instagram.com/godoneveryside/" target="_blank">@godoneveryside</a>
-          </p>
-        </div>
-        <div class="col-md-4 mb-4">
-          <h5>Quick Links</h5>
-          <a href="{% url 'home' %}">Home</a>
-          <a href="{% url 'shop' %}">New Arrivals</a>
-          <a href="{% url 'cart' %}">Cart</a>
-          <a href="{% url 'our_story' %}">Our Story</a>
-          <a href="{% url 'policies' %}">Policies</a>
-        </div>
-        <div class="col-md-4 mb-4">
-          <h5>About</h5>
-          <p>Follow us: <a href="https://www.instagram.com/godoneveryside/" target="_blank" style="color: #555; text-decoration: none;"><i class="bi bi-instagram"></i> @godoneveryside</a></p>
+			<!-- Improved Footer -->
+			<footer id="mfn-footer-template" class="text-white" style="background-color: #000 !important; font-family: 'Poppins', sans-serif; border-top: 2px solid  #ffb3b3;">
+			<div class="container py-5">
+				<div class="row gy-4">
 
-        </div>
-      </div>
-      <div class="d-flex justify-content-between align-items-center py-3 border-top">
-        <div>
-          <i class="bi bi-credit-card"></i> <i class="bi bi-paypal"></i>
-        </div>
-        <div>
-          Find us here: 
-          <a href="https://www.instagram.com/godoneveryside/" target="_blank" class="text-dark"><i class="bi bi-instagram"></i></a>
-        </div>
-      </div>
-      <div class="text-center py-3 text-muted">
-        © 2025 All Rights Reserved. GOES - God On Every Side
-      </div>
-    </div>
-  </footer>
+				<!-- Contact Info -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Contact</h6>
+					<p class="mb-2" style="font-size: 1rem;">
+					<i class="fa fa-envelope me-2" style="color: red;"></i>
+					<a href="mailto:support@goesbrand.com" class="text-white text-decoration-none">support@goesbrand.com</a>
+					</p>
+					<p style="font-size: 1rem;">
+					<i class="fa fa-phone me-2" style="color: red;"></i>
+					<a href="tel:+2349162890691" class="text-white text-decoration-none">+2349162890691</a>
+					</p>
+				</div>
 
+				<!-- Pages -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Pages</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					<li><a href="{% url 'shop' %}" class="text-white text-decoration-none">New Arrivals</a></li>
+					<li><a href="{% url 'shop' %}" class="text-white text-decoration-none">Shop</a></li>
+					<li><a href="{% url 'our_story' %}" class="text-white text-decoration-none">Our Story</a></li>
+					<li><a href="{% url 'cart' %}" class="text-white text-decoration-none">Cart</a></li>
+					<li><a href="{% url 'profile' %}" class="text-white text-decoration-none">Profile</a></li>
+					<li><a href="{% url 'policies' %}" class="text-white text-decoration-none">Policies</a></li>
+					</ul>
+				</div>
+
+				<!-- Collections -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Shop</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					{% for category in categories %}
+						<li><a href="{% url 'shop' %}?category={{ category.id }}" class="text-white text-decoration-none" >{{ category.name }}</a></li>
+					{% empty %}
+						<li class="text-muted">No collections found.</li>
+					{% endfor %}
+					</ul>
+				</div>
+
+				<!-- Social Media -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Follow Us</h6>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="fa fa-instagram me-2" style="color: RED;"></i>
+					<a href="https://www.instagram.com/godoneveryside/" target="_blank" class="text-white text-decoration-none">@godoneveryside</a>
+					</p>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="fa fa-music me-2" style="color: RED;"></i>
+					<a href="https://www.tiktok.com/@godoneveryside" target="_blank" class="text-white text-decoration-none">TikTok</a>
+					</p>
+					<p style="font-size: 1rem;">
+					<i class="fa fa-twitter me-2" style="color: RED;"></i>
+					<a href="https://twitter.com/godoneveryside" target="_blank" class="text-white text-decoration-none">Twitter</a>
+					</p>
+				</div>
+
+				</div>
+
+				<!-- Footer Bottom -->
+				<div class="row mt-4 pt-3 border-top" style="border-color:  red !important;">
+				<div class="col text-center" style="font-size: 0.95rem;">
+					<span>© 2025 <strong style="color:  red;">GOES</strong></span>
+					<span class="mx-2">|</span>
+					<span>All Rights Reserved</span>
+					<span class="mx-2">|</span>
+					<a href="{% url 'policies' %}" class="text-decoration-underline" style="color:  red;">Privacy Policy</a>
+				</div>
+				</div>
+			</div>
+
+			<!-- Internal Styles -->
+			<style>
+				#mfn-footer-template a:hover {
+				color:  #ffb3b3 !important;
+				text-decoration: underline !important;
+				}
+
+				@media (max-width: 576px) {
+				#mfn-footer-template h6 {
+					font-size: 1rem;
+				}
+
+				#mfn-footer-template p,
+				#mfn-footer-template li {
+					font-size: 0.95rem;
+				}
+				}
+			</style>
+			</footer>
   <!-- Mobile Sticky Footer Menu -->
   <div class="mobile-footer-nav d-md-none d-flex justify-content-around align-items-center">
     <a href="{% url 'home' %}" class="footer-icon">

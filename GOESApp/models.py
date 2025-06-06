@@ -161,3 +161,12 @@ class CartItem(models.Model):
 
     def total_price(self):
         return self.product.price * self.quantity
+
+class Newsletter(models.Model):
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.email
+
+

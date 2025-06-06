@@ -24,5 +24,6 @@ urlpatterns = [
     path('order-detail/<int:transaction_id>/', views.order_detail, name='order_detail'),
     path('our-story/', views.our_story, name='our_story'),
     path('policies/', views.policies, name='policies'),  
+    path('send/', views.send_newsletter, name='send_newsletter'),
 
 ]
