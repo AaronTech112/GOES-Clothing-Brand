@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm , CheckoutForm, AddressForm, NewsletterForm
 from django.contrib import messages
-from .models import Cart, CartItem, Product, Category,Transaction, Newsletter
+from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
@@ -97,6 +97,7 @@ def shop(request):
         'cart_count': cart_item_count(request)['cart_count'],
     }
     return render(request, 'GOESAPP/shop.html', context)
+
 @login_required(login_url='/login_user')
 def checkout(request):
     categories = Category.objects.all()
@@ -307,6 +308,8 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
 
     quantity = int(request.POST.get('quantity', 1))
+    size_name = request.POST.get('size')
+    color_name = request.POST.get('color')
 
     # If user is authenticated, fetch or create cart
     if request.user.is_authenticated:
@@ -318,15 +321,34 @@ def add_to_cart(request, product_id):
         session_key = request.session.session_key
         cart, created = Cart.objects.get_or_create(session_key=session_key, user=None)
 
+    # Get size and color objects if provided
+    size = None
+    color = None
+    if size_name:
+        size = get_object_or_404(Size, name=size_name)
+        if size not in product.sizes.all():
+            messages.error(request, f"Selected size {size_name} is not available for {product.name}.")
+            return redirect('product_detail', product_id=product.id)
+    if color_name:
+        color = get_object_or_404(Color, name=color_name)
+        if color not in product.colors.all():
+            messages.error(request, f"Selected color {color_name} is not available for {product.name}.")
+            return redirect('product_detail', product_id=product.id)
+
     # Add or update cart item
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=product,
+        size=size,
+        color=color
+    )
     if not created:
         cart_item.quantity += quantity
     else:
         cart_item.quantity = quantity
     cart_item.save()
 
-    messages.success(request, f"{product.name} added to cart!")
+    messages.success(request, f"{product.name} ({size_name or 'No size'}, {color_name or 'No color'}) added to cart!")
     return redirect('product_detail', product_id=product.id)
 
 def cart_item_count(request):
@@ -502,12 +524,17 @@ def product_detail(request, product_id):
     related_products = Product.objects.filter(
         category=category, is_active=True
     ).exclude(pk=product.pk)[:4]
+    # Get available sizes and colors
+    available_sizes = product.sizes.all()
+    available_colors = product.colors.all()
     context = {
         'product': product,
         'related_products': related_products,
         'categories': categories,
+        'available_sizes': available_sizes,
+        'available_colors': available_colors,
     }
-    return render(request, 'GOESAPP/product_detail.html', context)
+    return render(request, 'GOESApp/product_detail.html', context)
 
 # views.py
 def our_story(request):

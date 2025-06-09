@@ -233,7 +233,11 @@
         <div class="col-6 product-item fade-in" data-category="{{ product.category.id }}" data-name="{{ product.name|lower }}" data-category-name="{{ product.category.name|lower }}">
           <div class="product-card shadow-sm">
             <a href="{% url 'product_detail' product.id %}">
-              <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top" />
+              {% if product.images.first %}
+                  <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="card-img-top">
+              {% else %}
+                  <img src="{% static 'images/default.jpg' %}" alt="{{ product.name }}"  class="card-img-top">
+              {% endif %}
             </a>
             <div class="card-body">
               <h5 class="card-title">{{ product.name }}</h5>

@@ -12,6 +12,9 @@ from .models import (
     Cart,
     CartItem,
     Newsletter,
+    Color,
+    Size,
+    ProductImage,
 )
 
 @admin.register(CustomUser)
@@ -48,14 +51,28 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name', 'description')
 
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'price','in_stock', 'category', 'is_active', 'created_at', 'updated_at',
-    )
-    list_filter = ('is_active', 'category',)
+    list_display = ('name', 'price', 'in_stock', 'is_active')
+    list_filter = ('category', 'is_active')
     search_fields = ('name', 'description')
-    readonly_fields = ('created_at', 'updated_at',)
+    inlines = [ProductImageInline]
+    filter_horizontal = ('sizes', 'colors')  # Use filter_horizontal for better many-to-many UI
+    
+@admin.register(Size)
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ('name', 'hex_code')
+    search_fields = ('name',)
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

@@ -147,7 +147,11 @@
           {% for item in cart_items %}
             <div class="border rounded p-3 mb-4 cart-item d-flex align-items-center justify-content-between">
               <div class="d-flex align-items-center">
-                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="me-3" />
+                      {% if item.product.images.first %}
+                          <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="me-3">
+                      {% else %}
+                          <img src="{% static 'images/default.jpg' %}" alt="{{ item.product.name }}"  class="me-3">
+                      {% endif %}
                 <div>
                   <h5 class="mb-1">{{ item.product.name }}</h5>
                   <p class="mb-1">
