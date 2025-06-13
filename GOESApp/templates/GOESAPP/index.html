@@ -6776,7 +6776,7 @@
 																			<h6 class="mfn-woo-product-title"><a
 																					href="{% url 'product_detail' product.id %}"> {{ product.name }} </a></h6>
 																			<div class="excerpt excerpt-1">
-																				<p>{{ product.description|truncatewords:6 }}..</p>
+																				<p>{{ product.description|truncatewords:6|safe }}..</p>
 																				</p>
 																			</div>
 																			{% if product.slash_price %}
