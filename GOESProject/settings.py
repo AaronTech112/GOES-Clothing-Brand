@@ -38,15 +38,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'GOESApp',  # Your app name here
-    'ckeditor',
+    'django_ckeditor_5',
+
 ]
 
-CKEDITOR_CONFIGS = {
+CKEDITOR_5_CONFIGS = {
     'default': {
-        'toolbar': 'Basic',  # Options: 'Basic', 'Standard', 'Full'
-        'height': 300,
+        'toolbar': [
+            'heading', '|',
+            'bold', 'italic', 'underline', 'link', '|',
+            'bulletedList', 'numberedList', '|',
+            'blockQuote', 'codeBlock', '|',
+            'insertTable', '|',
+            'undo', 'redo',
+        ],
+        'height': '400px',
         'width': '100%',
-    },
+        'language': 'en',
+    }
 }
 
 

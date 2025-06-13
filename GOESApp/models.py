@@ -66,7 +66,7 @@ class Color(models.Model):
     def __str__(self):
         return self.name
 
-from ckeditor.fields import RichTextField
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Product(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
@@ -79,7 +79,7 @@ class Product(models.Model):
         default=get_default_category
     )
     in_stock = models.PositiveIntegerField(default=0, help_text="Number of items in stock")
-    description = RichTextField(blank=True, null=True)  # Updated to RichTextField
+    description = CKEditor5Field('Text', config_name='default')
     is_active = models.BooleanField(default=True)
     sizes = models.ManyToManyField(Size, related_name='products', blank=True, null=True, help_text="Available sizes for the product")
     colors = models.ManyToManyField(Color, related_name='products', blank=True, null=True, help_text="Available colors for the product")
