@@ -104,6 +104,47 @@
       }
     }
   </style>
+  <style>
+    .product-description {
+        line-height: 1.6;
+        color: #333;
+    }
+    .product-description h1,
+    .product-description h2,
+    .product-description h3 {
+        font-weight: 600;
+        margin: 1rem 0 0.5rem;
+    }
+    .product-description h1 {
+        font-size: 1.75rem;
+    }
+    .product-description h2 {
+        font-size: 1.5rem;
+    }
+    .product-description h3 {
+        font-size: 1.25rem;
+    }
+    .product-description p {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+    .product-description ul,
+    .product-description ol {
+        margin: 1rem 0;
+        padding-left: 2rem;
+    }
+    .product-description li {
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+    .product-description strong {
+        font-weight: 600;
+    }
+    .product-description em {
+        font-style: italic;
+    }
+  </style>
+  
 </head>
 <body>
 
@@ -238,7 +279,9 @@
           {% endfor %}
         </div>
         <div class="mb-4 text-muted"><small>SKU: {{ product.sku }}</small></div>
-        <p>{{ product.description }}</p>
+        <div class="product-description">
+            {{ product.description|safe }}
+        </div>
       </div>
     </div>
   </section>

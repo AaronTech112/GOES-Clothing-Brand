@@ -66,6 +66,8 @@ class Color(models.Model):
     def __str__(self):
         return self.name
 
+from ckeditor.fields import RichTextField
+
 class Product(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -77,10 +79,10 @@ class Product(models.Model):
         default=get_default_category
     )
     in_stock = models.PositiveIntegerField(default=0, help_text="Number of items in stock")
-    description = models.TextField(blank=True, null=True)
+    description = RichTextField(blank=True, null=True)  # Updated to RichTextField
     is_active = models.BooleanField(default=True)
-    sizes = models.ManyToManyField(Size, related_name='products',blank=True, null=True, help_text="Available sizes for the product")
-    colors = models.ManyToManyField(Color, related_name='products',blank=True, null=True, help_text="Available colors for the product")
+    sizes = models.ManyToManyField(Size, related_name='products', blank=True, null=True, help_text="Available sizes for the product")
+    colors = models.ManyToManyField(Color, related_name='products', blank=True, null=True, help_text="Available colors for the product")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
