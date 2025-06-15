@@ -52,16 +52,6 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
 
 
-@admin.register(Size)
-class SizeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
-
-@admin.register(Color)
-class ColorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'hex_code')
-    search_fields = ('name',)
-
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('product', 'user', 'rating', 'created_at')
@@ -100,15 +90,24 @@ class NewsletterAdmin(admin.ModelAdmin):
     list_display = ('email', 'created_at')
     search_fields = ('email',)
     
-from django.utils.safestring import mark_safe    
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+
+@admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'is_active']
-    readonly_fields = ['description_preview']
+    list_display = ('name', 'price', 'in_stock', 'is_active')
+    list_filter = ('category', 'is_active')
+    search_fields = ('name', 'description')
+    inlines = [ProductImageInline]
+    filter_horizontal = ('sizes', 'colors')  # Use filter_horizontal for better many-to-many UI
+    
+@admin.register(Size)
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
 
-    def description_preview(self, obj):
-        return mark_safe(obj.description) if obj.description else "No description"
-
-    description_preview.short_description = "Description Preview"
-
-admin.site.register(Product, ProductAdmin)
-admin.site.register(ProductImage)
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ('name', 'hex_code')
+    search_fields = ('name',)
