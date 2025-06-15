@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Newsletter</title>
+    <style>
+        form { max-width: 600px; margin: 0 auto; }
+        input, textarea { width: 100%; padding: 8px; margin: 10px 0; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h2>Send Newsletter</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="subject">Subject:</label>
+        <input type="text" name="subject" id="subject" required>
+        <label for="message">Message:</label>
+        <textarea name="message" id="message" rows="10" required></textarea>
+        <button type="submit">Send Newsletter</button>
+    </form>
+</body>
+</html>
