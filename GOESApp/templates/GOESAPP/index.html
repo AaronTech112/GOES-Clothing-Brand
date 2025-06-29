@@ -6298,6 +6298,25 @@
             });
         });
     </script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const seeMoreButton = document.getElementById('see-more-button');
+			const hiddenProducts = document.querySelectorAll('.hidden-product');
+
+			if (seeMoreButton && hiddenProducts.length > 0) {
+				seeMoreButton.addEventListener('click', function (e) {
+					e.preventDefault();
+					hiddenProducts.forEach(product => {
+						product.classList.remove('hidden-product');
+					});
+					seeMoreButton.style.display = 'none'; // Hide the button after showing all products
+				});
+			} else {
+				// If no hidden products, hide the button
+				seeMoreButton.style.display = 'none';
+			}
+		});		
+	</script>
 
     <!-- Hamburger for mobile -->
     <div class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation" tabindex="0">
@@ -6620,25 +6639,70 @@
 										</div>
 									</div>
 								</section>
+								<style>
+									.hidden-product {
+										display: none;
+									}									
+								</style>
+								{% comment %} <style>
+									/* Ensure consistent 4-column grid for WooCommerce products */
+									.woocommerce.columns-4 .products {
+										display: flex !important;
+										flex-wrap: wrap !important;
+										justify-content: space-between !important;
+										width: 100% !important;
+									}
+
+									.woocommerce.columns-4 .products .isotope-item {
+										width: calc(25% - 10px) !important; /* 4 columns with some margin */
+										margin-bottom: 20px !important;
+										box-sizing: border-box !important;
+										display: inline-block !important;
+										vertical-align: top !important;
+									}
+
+									/* Ensure hidden products maintain grid properties */
+									.hidden-product {
+										display: none !important;
+									}
+
+									/* Clearfix to prevent layout issues */
+									.products::after {
+										content: '' !important;
+										display: table !important;
+										clear: both !important;
+									}
+
+									/* Responsive adjustments (optional, adjust breakpoints as needed) */
+									@media (max-width: 768px) {
+										.woocommerce.columns-4 .products .isotope-item {
+											width: calc(50% - 10px) !important; /* 2 columns on smaller screens */
+										}
+									}
+
+									@media (max-width: 480px) {
+										.woocommerce.columns-4 .products .isotope-item {
+											width: 100% !important; /* 1 column on mobile */
+										}
+									}
+
+								</style> {% endcomment %}
 								<section
 									class="section mcb-section mfn-default-section mcb-section-8454076b9 default-width"
 									style>
 									<div class="mcb-background-overlay"></div>
-									<div
-										class="section_wrapper mfn-wrapper-for-wraps mcb-section-inner mcb-section-inner-8454076b9">
+									<div class="section_wrapper mfn-wrapper-for-wraps mcb-section-inner mcb-section-inner-8454076b9">
 										<div
 											class="wrap mcb-wrap mcb-wrap-625649dfb one tablet-one laptop-one mobile-one clearfix"
 											data-desktop-col="one" data-laptop-col="laptop-one"
 											data-tablet-col="tablet-one"
 											data-mobile-col="mobile-one" style>
-											<div
-												class="mcb-wrap-inner mcb-wrap-inner-625649dfb mfn-module-wrapper mfn-wrapper-for-wraps">
+											<div class="mcb-wrap-inner mcb-wrap-inner-625649dfb mfn-module-wrapper mfn-wrapper-for-wraps">
 												<div class="mcb-wrap-background-overlay"></div>
 												<div
 													class="column mcb-column mcb-item-408cdda3d one laptop-one tablet-one mobile-one column_heading"
 													style>
-													<div
-														class="mcb-column-inner mfn-module-wrapper mcb-column-inner-408cdda3d mcb-item-heading-inner">
+													<div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-408cdda3d mcb-item-heading-inner">
 														<h2 class="title">NEW ARRIVALS</h2>
 													</div>
 												</div>
@@ -6648,190 +6712,145 @@
 													<div
 														class="mcb-column-inner mfn-module-wrapper mcb-column-inner-5c0f5c3d8 mcb-item-shop-inner">
 														<div class="woocommerce columns-4 ">
-															<div
-																class="products_wrapper mfn-woo-products isotope_wrapper default-woo-loop lm_wrapper">
-																<ul class="products ">
+															<div class="products_wrapper mfn-woo-products isotope_wrapper default-woo-loop lm_wrapper">
+																<ul class="products">
 																	{% for product in products %}
 																	<li
-																		class="isotope-item align-left product type-product post-346 status-publish first instock product_cat-accessories-woman product_cat-woman-bodycon-dresses product_cat-woman-caps product_cat-woman-dresses product_cat-woman-leather-trousers product_cat-woman-maxi-dresses product_cat-woman-midi-skirts product_cat-woman-pants-shorts-woman product_cat-shorts product_cat-woman-skirts product_cat-woman-suit-trousers product_cat-woman-t-shirt-dresses product_cat-woman product_cat-woman-wrap-skirts product_tag-accessories product_tag-boots product_tag-maxi-dress product_tag-sunglasses product_tag-woman has-post-thumbnail sale shipping-taxable purchasable product-type-variable">
-
-																		<div
-																			class="mfn-li-product-row mfn-li-product-row-image">
-																			<div
-																				class="image_frame scale-with-grid product-loop-thumb">
-																				<span class="onsale onsale-label">On
-																					Sale</span>
-																				<div class="image_wrapper "><a
-																						href="{% url 'product_detail' product.id %}"
-																						tabindex="-1">
-																						<div class="mask"></div><img
+																		class="isotope-item align-left product type-product post-{{ product.id }} {% if forloop.counter > 4 %}hidden-product{% endif %}">
+																		<!-- Keep the rest of the product item HTML unchanged -->
+																		<div class="mfn-li-product-row mfn-li-product-row-image">
+																			<div class="image_frame scale-with-grid product-loop-thumb">
+																				<span class="onsale onsale-label">On Sale</span>
+																				<div class="image_wrapper">
+																					<a href="{% url 'product_detail' product.id %}" tabindex="-1">
+																						<div class="mask"></div>
+																						<img
 																							width="800" height="888"
-																							src="wp-content/uploads/2022/09/clothingstore2-woman-pic7-800x888.webp"
+																							src="{{ product.images.first.image.url }}"
 																							class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail"
 																							alt decoding="async"
 																							loading="lazy"
 																							srcset="{{ product.images.first.image.url }} 800w, {{ product.images.first.image.url }} 450w, {{ product.images.first.image.url }} 768w, {{ product.images.first.image.url }} 132w, {{ product.images.first.image.url }} 45w, {{ product.images.first.image.url }} 68w"
 																							sizes="auto, (max-width:767px) 480px, (max-width:800px) 100vw, 800px" />
 																					</a>
-																					
-																					<div class="image_links"><a
-																							class="link tooltip tooltip-txt"
-																							data-tooltip="View product"
-																							data-position="left"
-																							href="{% url 'product_detail' product.id %}"><svg
-																								viewBox="0 0 26 26">
+																					<div class="image_links">
+																						<a class="link tooltip tooltip-txt" data-tooltip="View product" data-position="left" href="{% url 'product_detail' product.id %}">
+																							<svg viewBox="0 0 26 26">
 																								<defs>
 																									<style>
-																									.path {
-																										fill: none;
-																										stroke: #333;
-																										stroke-miterlimit: 10;
-																										stroke-width: 1.5px;
-																									}
-																								</style>
+																										.path {
+																											fill: none;
+																											stroke: #333;
+																											stroke-miterlimit: 10;
+																											stroke-width: 1.5px;
+																										}
+																									</style>
 																								</defs>
 																								<g>
-																									<path
-																										d="M10.17,8.76l2.12-2.12a5,5,0,0,1,7.07,0h0a5,5,0,0,1,0,7.07l-2.12,2.12"
-																										class="path" />
-																									<path
-																										d="M15.83,17.24l-2.12,2.12a5,5,0,0,1-7.07,0h0a5,5,0,0,1,0-7.07l2.12-2.12"
-																										class="path" />
-																									<line x1="10.17"
-																										y1="15.83"
-																										x2="15.83"
-																										y2="10.17"
-																										class="path" />
+																									<path d="M10.17,8.76l2.12-2.12a5,5,0,0,1,7.07,0h0a5,5,0,0,1,0,7.07l-2.12,2.12" class="path" />
+																									<path d="M15.83,17.24l-2.12,2.12a5,5,0,0,1-7.07,0h0a5,5,0,0,1,0-7.07l2.12-2.12" class="path" />
+																									<line x1="10.17" y1="15.83" x2="15.83" y2="10.17" class="path" />
 																								</g>
-																							</svg></a><a href="#"
-																							tabindex="-1"
-																							data-tooltip="Add to wishlist"
-																							data-position="left"
-																							data-id="346"
-																							class="mfn-wish-button tooltip tooltip-txt link"><svg
-																								width="26"
-																								viewBox="0 0 26 26">
+																							</svg>
+																						</a>
+																						<a href="#" data-tooltip="Add to wishlist" data-position="left" data-id="{{ product.id }}" class="mfn-wish-button tooltip tooltip-txt link">
+																							<svg width="26" viewBox="0 0 26 26">
 																								<defs>
 																									<style>
-																									.path {
-																										fill: none;
-																										stroke: #333;
-																										stroke-width: 1.5px;
-																									}
-																								</style>
+																										.path {
+																											fill: none;
+																											stroke: #333;
+																											stroke-width: 1.5px;
+																										}
+																									</style>
 																								</defs>
-																								<path class="path"
-																									d="M16.7,6a3.78,3.78,0,0,0-2.3.8A5.26,5.26,0,0,0,13,8.5a5,5,0,0,0-1.4-1.6A3.52,3.52,0,0,0,9.3,6a4.33,4.33,0,0,0-4.2,4.6c0,2.8,2.3,4.7,5.7,7.7.6.5,1.2,1.1,1.9,1.7H13a.37.37,0,0,0,.3-.1c.7-.6,1.3-1.2,1.9-1.7,3.4-2.9,5.7-4.8,5.7-7.7A4.3,4.3,0,0,0,16.7,6Z">
-																								</path>
-																							</svg></a><a href="#"
-																							tabindex="-1"
-																							data-tooltip="Preview"
-																							data-position="left"
-																							data-id="346" data-id="346"
-																							class="mfn-quick-view tooltip tooltip-txt"><svg
-																								viewBox="0 0 26 26">
+																								<path class="path" d="M16.7,6a3.78,3.78,0,0,0-2.3.8A5.26,5.26,0,0,0,13,8.5a5,5,0,0,0-1.4-1.6A3.52,3.52,0,0,0,9.3,6a4.33,4.33,0,0,0-4.2,4.6c0,2.8,2.3,4.7,5.7,7.7.6.5,1.2,1.1,1.9,1.7H13a.37.37,0,0,0,.3-.1c.7-.6,1.3-1.2,1.9-1.7,3.4-2.9,5.7-4.8,5.7-7.7A4.3,4.3,0,0,0,16.7,6Z"></path>
+																							</svg>
+																						</a>
+																						<a href="#" data-tooltip="Preview" data-position="left" data-id="{{ product.id }}" class="mfn-quick-view tooltip tooltip-txt">
+																							<svg viewBox="0 0 26 26">
 																								<defs>
 																									<style>
-																									.path {
-																										fill: none;
-																										stroke: #333;
-																										stroke-miterlimit: 10;
-																										stroke-width: 1.5px;
-																									}
-																								</style>
+																										.path {
+																											fill: none;
+																											stroke: #333;
+																											stroke-miterlimit: 10;
+																											stroke-width: 1.5px;
+																										}
+																									</style>
 																								</defs>
-																								<line x1="7" y1="7"
-																									x2="11.29" y2="11.29"
-																									class="path" />
-																								<line x1="14.62" y1="14.62"
-																									x2="18.91" y2="18.91"
-																									class="path" />
-																								<polyline
-																									points="7 15.57 7 19 10.43 19"
-																									class="path" />
-																								<polyline
-																									points="15.57 19 19 19 19 15.57"
-																									class="path" />
-																								<polyline
-																									points="10.43 7 7 7 7 10.43"
-																									class="path" />
-																								<polyline
-																									points="19 10.43 19 7 15.57 7"
-																									class="path" />
-																								<line x1="14.71" y1="11.29"
-																									x2="19" y2="7"
-																									class="path" />
-																								<line x1="7" y1="19"
-																									x2="11.29" y2="14.71"
-																									class="path" />
-																							</svg></a></div>
-																				</div><a
-																					href="{% url 'product_detail' product.id %}"
-																					tabindex="-1"><span
-																						class="product-loading-icon added-cart"></span></a>
+																								<line x1="7" y1="7" x2="11.29" y2="11.29" class="path" />
+																								<line x1="14.62" y1="14.62" x2="18.91" y2="18.91" class="path" />
+																								<polyline points="7 15.57 7 19 10.43 19" class="path" />
+																								<polyline points="15.57 19 19 19 19 15.57" class="path" />
+																								<polyline points="10.43 7 7 7 7 10.43" class="path" />
+																								<polyline points="19 10.43 19 7 15.57 7" class="path" />
+																								<line x1="14.71" y1="11.29" x2="19" y2="7" class="path" />
+																								<line x1="7" y1="19" x2="11.29" y2="14.71" class="path" />
+																							</svg>
+																						</a>
+																					</div>
+																				</div>
+																				<a href="{% url 'product_detail' product.id %}" tabindex="-1">
+																					<span class="product-loading-icon added-cart"></span>
+																				</a>
 																			</div>
 																		</div>
 																		<div class="desc">
-
-																			<h6 class="mfn-woo-product-title"><a
-																					href="{% url 'product_detail' product.id %}"> {{ product.name }} </a></h6>
+																			<h6 class="mfn-woo-product-title">
+																				<a href="{% url 'product_detail' product.id %}"> {{ product.name }} </a>
+																			</h6>
 																			<div class="excerpt excerpt-1">
 																				<p>{{ product.description|truncatewords:6|safe }}..</p>
-																				</p>
 																			</div>
 																			{% if product.slash_price %}
 																			<span class="price">
 																				<del aria-hidden="true">
 																					<span class="woocommerce-Price-amount amount">
 																						<bdi>
-																							<span class="woocommerce-Price-currencySymbol">&#8358;</span>{{ product.slash_price }}
+																							<span class="woocommerce-Price-currencySymbol">₦</span>{{ product.slash_price }}
 																						</bdi>
 																					</span>
 																				</del>
-																				<span class="screen-reader-text">Original price was: &#8358;{{ product.slash_price }}</span>
+																				<span class="screen-reader-text">Original price was: ₦{{ product.slash_price }}</span>
 																				<ins aria-hidden="true">
 																					<span class="woocommerce-Price-amount amount">
 																						<bdi>
-																							<span class="woocommerce-Price-currencySymbol">&#8358;</span>{{ product.price }}
+																							<span class="woocommerce-Price-currencySymbol">₦</span>{{ product.price }}
 																						</bdi>
 																					</span>
 																				</ins>
-																				<span class="screen-reader-text">Current price is: &#8358;{{ product.price }}.</span>
+																				<span class="screen-reader-text">Current price is: ₦{{ product.price }}.</span>
 																			</span>
 																			{% else %}
 																			<span class="price">
 																				<ins aria-hidden="true">
 																					<span class="woocommerce-Price-amount amount">
 																						<bdi>
-																							<span class="woocommerce-Price-currencySymbol">&#8358;</span>{{ product.price }}
+																							<span class="woocommerce-Price-currencySymbol">₦</span>{{ product.price }}
 																						</bdi>
 																					</span>
 																				</ins>
-																				<span class="screen-reader-text">Current price is: &#8358;{{ product.price }}.</span>
+																				<span class="screen-reader-text">Current price is: ₦{{ product.price }}.</span>
 																			</span>
 																			{% endif %}
-																			<div
-																				class="mfn-li-product-row mfn-li-product-row-button hide-button">
-																				<a href="#" data-id="346"
-																					class="mfn-wish-button"><svg width="26"
-																						viewBox="0 0 26 26"
-																						aria-label="Add to wishlist">
+																			<div class="mfn-li-product-row mfn-li-product-row-button hide-button">
+																				<a href="#" data-id="{{ product.id }}" class="mfn-wish-button">
+																					<svg width="26" viewBox="0 0 26 26" aria-label="Add to wishlist">
 																						<defs>
 																							<style>
-																							.path {
-																								fill: none;
-																								stroke: #333;
-																								stroke-width: 1.5px;
-																							}
-																						</style>
+																								.path {
+																									fill: none;
+																									stroke: #333;
+																									stroke-width: 1.5px;
+																								}
+																							</style>
 																						</defs>
-																						<path class="path"
-																							d="M16.7,6a3.78,3.78,0,0,0-2.3.8A5.26,5.26,0,0,0,13,8.5a5,5,0,0,0-1.4-1.6A3.52,3.52,0,0,0,9.3,6a4.33,4.33,0,0,0-4.2,4.6c0,2.8,2.3,4.7,5.7,7.7.6.5,1.2,1.1,1.9,1.7H13a.37.37,0,0,0,.3-.1c.7-.6,1.3-1.2,1.9-1.7,3.4-2.9,5.7-4.8,5.7-7.7A4.3,4.3,0,0,0,16.7,6Z">
-																						</path>
-																					</svg></a>
+																						<path class="path" d="M16.7,6a3.78,3.78,0,0,0-2.3.8A5.26,5.26,0,0,0,13,8.5a5,5,0,0,0-1.4-1.6A3.52,3.52,0,0,0,9.3,6a4.33,4.33,0,0,0-4.2,4.6c0,2.8,2.3,4.7,5.7,7.7.6.5,1.2,1.1,1.9,1.7H13a.37.37,0,0,0,.3-.1c.7-.6,1.3-1.2,1.9-1.7,3.4-2.9,5.7-4.8,5.7-7.7A4.3,4.3,0,0,0,16.7,6Z"></path>
+																					</svg>
+																				</a>
 																			</div>
 																		</div>
-
 																	</li>
 																	{% endfor %}
 																</ul>
@@ -6842,16 +6861,54 @@
 												<div
 													class="column mcb-column mcb-item-4vabfvkja one laptop-one tablet-one mobile-one column_button"
 													style>
-													<div
-														class="mcb-column-inner mfn-module-wrapper mcb-column-inner-4vabfvkja mcb-item-button-inner">
-														<a class="button  button_size_2" href="{% url 'shop' %}"
-															title><span class="button_label">SEE MORE</span></a>
+													<div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-4vabfvkja mcb-item-button-inner">
+														<a class="button button_size_2" href="{% url 'shop' %}" id="see-more-button" title>
+															<span class="button_label">SEE MORE</span>
+														</a>
 													</div>
 												</div>
 											</div>
 										</div>
 									</div>
 								</section>
+								<script>
+									document.addEventListener('DOMContentLoaded', function () {
+										const seeMoreButton = document.getElementById('see-more-button');
+										const productList = document.querySelector('.products');
+										const hiddenProducts = document.querySelectorAll('.hidden-product');
+
+										// Initialize Isotope (if used)
+										let iso;
+										if (typeof Isotope !== 'undefined') {
+											iso = new Isotope(productList, {
+												itemSelector: '.isotope-item',
+												layoutMode: 'fitRows', // Ensures a grid layout
+												percentPosition: true
+											});
+										}
+
+										if (seeMoreButton && hiddenProducts.length > 0) {
+											seeMoreButton.addEventListener('click', function (e) {
+												e.preventDefault();
+												hiddenProducts.forEach(product => {
+													product.classList.remove('hidden-product');
+													// If using Isotope, add the item to the layout
+													if (iso) {
+														iso.appended(product);
+													}
+												});
+												// Relayout Isotope after revealing products
+												if (iso) {
+													iso.layout();
+												}
+												seeMoreButton.style.display = 'none'; // Hide the button after showing all products
+											});
+										} else {
+											// If no hidden products, hide the button
+											seeMoreButton.style.display = 'none';
+										}
+									});									
+								</script>
 								<section
 									class="section mcb-section mfn-default-section mcb-section-62f57ec10 default-width"
 									style>
