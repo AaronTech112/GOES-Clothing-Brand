@@ -13,7 +13,6 @@ from django.conf import settings
 from django.db.models import Q
 from django.core.mail import send_mass_mail
 
-# Create your views here.
 def home(request):
     if request.method == 'POST':
         form = NewsletterForm(request.POST)
@@ -29,14 +28,14 @@ def home(request):
     else:
         form = NewsletterForm()
         
-    products = Product.objects.filter(is_active=True).order_by('name')
+    products = Product.objects.filter(is_active=True).order_by('name')  # Fetch all products
     categories = Category.objects.all()
     context = {
         'products': products,
         'categories': categories,
         'form': form,
     }
-    return render(request, 'GOESAPP/index.html', context) 
+    return render(request, 'GOESAPP/index.html', context)
 
 from django.core.mail import EmailMultiAlternatives
 def send_newsletter(request):
