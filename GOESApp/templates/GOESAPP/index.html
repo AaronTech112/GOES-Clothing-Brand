@@ -6298,25 +6298,7 @@
             });
         });
     </script>
-	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			const seeMoreButton = document.getElementById('see-more-button');
-			const hiddenProducts = document.querySelectorAll('.hidden-product');
 
-			if (seeMoreButton && hiddenProducts.length > 0) {
-				seeMoreButton.addEventListener('click', function (e) {
-					e.preventDefault();
-					hiddenProducts.forEach(product => {
-						product.classList.remove('hidden-product');
-					});
-					seeMoreButton.style.display = 'none'; // Hide the button after showing all products
-				});
-			} else {
-				// If no hidden products, hide the button
-				seeMoreButton.style.display = 'none';
-			}
-		});		
-	</script>
 
     <!-- Hamburger for mobile -->
     <div class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation" tabindex="0">
