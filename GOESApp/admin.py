@@ -15,6 +15,7 @@ from .models import (
     Color,
     Size,
     ProductImage,
+    HomePageImages,
 )
 
 @admin.register(CustomUser)
@@ -111,3 +112,5 @@ class SizeAdmin(admin.ModelAdmin):
 class ColorAdmin(admin.ModelAdmin):
     list_display = ('name', 'hex_code')
     search_fields = ('name',)
+    
+admin.site.register(HomePageImages)

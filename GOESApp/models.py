@@ -185,4 +185,16 @@ class Newsletter(models.Model):
     def __str__(self):
         return self.email
 
+class HomePageImages(models.Model):
+    image1 = models.ImageField(upload_to='homepage/', blank=True, null=True)
+    image2 = models.ImageField(upload_to='homepage/', blank=True, null=True)
+    image3 = models.ImageField(upload_to='homepage/', blank=True, null=True)
+    image4 = models.ImageField(upload_to='homepage/', blank=True, null=True)
+
+    def __str__(self):
+        return "Home Page Images"
+
+    class Meta:
+        verbose_name = "Home Page Images"
+        verbose_name_plural = "Home Page Images"
 

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'GOESApp',  # Your app name here
     'django_ckeditor_5',
+  
 
 ]
 

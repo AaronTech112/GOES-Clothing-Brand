@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm , CheckoutForm, AddressForm, NewsletterForm
 from django.contrib import messages
-from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage
+from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
@@ -13,7 +13,6 @@ from django.conf import settings
 from django.db.models import Q
 from django.core.mail import send_mass_mail
 
-# Create your views here.
 def home(request):
     if request.method == 'POST':
         form = NewsletterForm(request.POST)
@@ -29,14 +28,16 @@ def home(request):
     else:
         form = NewsletterForm()
         
-    products = Product.objects.filter(is_active=True).order_by('name')
+    products = Product.objects.filter(is_active=True).order_by('name')  # Fetch all products
+    home_images = HomePageImages.objects.all()
     categories = Category.objects.all()
     context = {
         'products': products,
         'categories': categories,
         'form': form,
+        'home_images':home_images,
     }
-    return render(request, 'GOESAPP/index.html', context) 
+    return render(request, 'GOESAPP/index.html', context)
 
 from django.core.mail import EmailMultiAlternatives
 def send_newsletter(request):
@@ -107,6 +108,7 @@ def checkout(request):
     shipping_fee = 2000  # Example fixed shipping fee in NGN
     subtotal = 0
     address = None
+    has_address = False
 
     try:
         cart = Cart.objects.get(user=request.user)
@@ -114,6 +116,14 @@ def checkout(request):
         subtotal = sum(item.total_price() for item in cart_items)
         total_price = subtotal + shipping_fee
         address = request.user.address if hasattr(request.user, 'address') and request.user.address else None
+        has_address = address is not None and all([
+            address.street,
+            address.city,
+            address.state,
+            address.postal_code,
+            address.country,
+            address.phone_number
+        ])
     except Cart.DoesNotExist:
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
@@ -123,13 +133,10 @@ def checkout(request):
         return redirect('cart')
 
     if request.method == 'POST':
-        form = CheckoutForm(request.POST, instance=address)
-        if form.is_valid():
-            address = form.save()
-            if not request.user.address:
-                request.user.address = address
-                request.user.save()
-            messages.success(request, "Delivery address updated successfully.")
+        if 'proceed_to_pay' in request.POST:
+            if not has_address:
+                messages.error(request, "Please save a valid delivery address before proceeding to payment.")
+                return redirect('checkout')
             # Create a transaction before redirecting to Flutterwave
             tx_ref = f"txn-{uuid.uuid4().hex[:10]}"  # Generate unique transaction reference
             transaction = Transaction.objects.create(
@@ -142,10 +149,19 @@ def checkout(request):
             # Add products to the transaction
             transaction.products.set([item.product for item in cart_items])
             transaction.save()
-            # Redirect to Flutterwave payment (handled in template)
             return redirect('initiate_payment', transaction_id=transaction.id)
         else:
-            messages.error(request, "Please correct the errors in the form.")
+            # Handle address form submission
+            form = CheckoutForm(request.POST, instance=address)
+            if form.is_valid():
+                address = form.save()
+                if not request.user.address:
+                    request.user.address = address
+                    request.user.save()
+                messages.success(request, "Delivery address updated successfully.")
+                return redirect('checkout')
+            else:
+                messages.error(request, "Please correct the errors in the form.")
     else:
         form = CheckoutForm(instance=address)
 
@@ -157,6 +173,7 @@ def checkout(request):
         'total_price': total_price,
         'form': form,
         'categories': categories,
+        'has_address': has_address,
     }
     return render(request, 'GOESAPP/checkout.html', context)
 
