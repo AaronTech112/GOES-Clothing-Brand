@@ -293,7 +293,7 @@
       {% for rel in related_products %}
       <div class="col-md-6 col-lg-3">
         <div class="card border-0">
-          <img src="{{ rel.image.url }}" class="card-img-top" alt="{{ rel.name }}">
+          <img src="{{ rel.images.first.image.url }}" class="card-img-top" alt="{{ rel.name }}">
           <div class="card-body text-center">
             <h5 class="card-title">{{ rel.name }}</h5>
             <div class="d-flex justify-content-center mb-2 color-picker">
@@ -308,7 +308,7 @@
       {% endfor %}
     </div>
     <div class="text-center mt-4">
-      <a href="{% url 'home' %}" class="btn btn-outline-dark">See All Products</a>
+      <a href="{% url 'shop' %}" class="btn btn-outline-dark">See All Products</a>
     </div>
   </section>
 
