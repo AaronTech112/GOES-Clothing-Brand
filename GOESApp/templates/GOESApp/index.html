@@ -6304,12 +6304,30 @@
     </script>
 
 
-    <!-- Hamburger for mobile -->
-    <div class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation" tabindex="0">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
+	<!-- Hamburger for mobile -->
+	<div class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation" tabindex="0">
+		<span></span>
+		<span></span>
+		<span></span>
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const navToggle = document.getElementById('mobileNavToggle');
+			const mobileNav = document.getElementById('mobileNav');
+
+			navToggle.addEventListener('click', function () {
+				navToggle.classList.toggle('open');
+				mobileNav.classList.toggle('open');
+			});
+
+			navToggle.addEventListener('keydown', function (e) {
+				if (e.key === 'Enter' || e.key === ' ') {
+					navToggle.classList.toggle('open');
+					mobileNav.classList.toggle('open');
+				}
+			});
+		});
+	</script>
 
     {% if messages %}
         <br>
