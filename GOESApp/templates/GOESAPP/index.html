@@ -6702,7 +6702,7 @@
 																		<!-- Keep the rest of the product item HTML unchanged -->
 																		<div class="mfn-li-product-row mfn-li-product-row-image">
 																			<div class="image_frame scale-with-grid product-loop-thumb">
-																				<span class="onsale onsale-label">On Sale</span>
+																	
 																				<div class="image_wrapper">
 																					<a href="{% url 'product_detail' product.id %}" tabindex="-1">
 																						<div class="mask"></div>
@@ -6853,44 +6853,7 @@
 										</div>
 									</div>
 								</section>
-								<script>
-									document.addEventListener('DOMContentLoaded', function () {
-										const seeMoreButton = document.getElementById('see-more-button');
-										const productList = document.querySelector('.products');
-										const hiddenProducts = document.querySelectorAll('.hidden-product');
 
-										// Initialize Isotope (if used)
-										let iso;
-										if (typeof Isotope !== 'undefined') {
-											iso = new Isotope(productList, {
-												itemSelector: '.isotope-item',
-												layoutMode: 'fitRows', // Ensures a grid layout
-												percentPosition: true
-											});
-										}
-
-										if (seeMoreButton && hiddenProducts.length > 0) {
-											seeMoreButton.addEventListener('click', function (e) {
-												e.preventDefault();
-												hiddenProducts.forEach(product => {
-													product.classList.remove('hidden-product');
-													// If using Isotope, add the item to the layout
-													if (iso) {
-														iso.appended(product);
-													}
-												});
-												// Relayout Isotope after revealing products
-												if (iso) {
-													iso.layout();
-												}
-												seeMoreButton.style.display = 'none'; // Hide the button after showing all products
-											});
-										} else {
-											// If no hidden products, hide the button
-											seeMoreButton.style.display = 'none';
-										}
-									});									
-								</script>
 								<section
 									class="section mcb-section mfn-default-section mcb-section-62f57ec10 default-width"
 									style>
