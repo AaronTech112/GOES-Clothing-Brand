@@ -7630,6 +7630,204 @@
 		if (window.RS_MODULES.checkMinimal !== undefined) { window.RS_MODULES.checkMinimal(); };
 	</script>
 
+    <!-- Discount Modal -->    
+    <div class="discount-modal" id="discountModal" style="display: none;">
+        <div class="discount-modal-content">
+            <span class="discount-close">&times;</span>
+            <div class="discount-modal-inner">
+                <div class="discount-image">
+                    <img src="{% static 'images/LOGO_ISOTYPE[1].png' %}" alt="5% Off" />
+                </div>
+                <div class="discount-text">
+                    <h2>Unlock 5% off your first order</h2>
+                    <p>Sign up for more offers and updates</p>
+                    <div class="discount-form">
+                        <input type="email" id="discountEmail" placeholder="Email" />
+                        <button id="unlockOfferBtn">Unlock Offer</button>
+                    </div>
+                    <p class="discount-terms">By signing up, you agree to receive email marketing</p>
+                    <button id="noThanksBtn">No, thanks</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .discount-modal {
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .discount-modal-content {
+            background-color: #fff;
+            margin: auto;
+            max-width: 650px;
+            width: 90%;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.5s;
+        }
+
+        .discount-modal-inner {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .discount-image {
+            flex: 1;
+            max-width: 50%;
+        }
+
+        .discount-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .discount-text {
+            flex: 1;
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .discount-text h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .discount-text p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .discount-form {
+            margin-bottom: 15px;
+        }
+
+        .discount-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #unlockOfferBtn {
+            background-color: #000;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        #unlockOfferBtn:hover {
+            background-color: #333;
+        }
+
+        .discount-terms {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        #noThanksBtn {
+            background: none;
+            border: none;
+            color: #555;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .discount-close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+        }
+
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        @media (max-width: 768px) {
+            .discount-modal-inner {
+                flex-direction: column;
+            }
+            .discount-image {
+                max-width: 100%;
+            }
+            .discount-image img {
+                border-radius: 8px 8px 0 0;
+                max-height: 200px;
+            }
+            .discount-text h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+
+    <script>
+        // Show discount modal after 4 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.getElementById('discountModal').style.display = 'flex';
+            }, 4000); // 4 seconds delay
+
+            // Close modal when clicking the X
+            document.querySelector('.discount-close').addEventListener('click', function() {
+                document.getElementById('discountModal').style.display = 'none';
+            });
+
+            // Close modal when clicking "No, thanks"
+            document.getElementById('noThanksBtn').addEventListener('click', function() {
+                document.getElementById('discountModal').style.display = 'none';
+            });
+
+            // Handle the unlock offer button
+            document.getElementById('unlockOfferBtn').addEventListener('click', function() {
+                const email = document.getElementById('discountEmail').value;
+                if (email) {
+                    // Here you would typically send this to your backend
+                    // Redirect to the shop page
+                    window.location.href = "{% url 'shop' %}";
+                } else {
+                    alert('Please enter your email address');
+                }
+            });
+
+            // Close modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('discountModal')) {
+                    document.getElementById('discountModal').style.display = 'none';
+                }
+            });
+        });
+    </script>
 	</body>
 
 	<!-- Mirrored from themes.muffingroup.com/be/clothingstore2/ by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 28 Apr 2025 22:16:56 GMT -->

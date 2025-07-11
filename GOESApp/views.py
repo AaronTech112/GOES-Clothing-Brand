@@ -40,11 +40,41 @@ def home(request):
     return render(request, 'GOESAPP/index.html', context)
 
 from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+import time
+
 def send_newsletter(request):
     if request.method == 'POST':
         subject = request.POST.get('subject')
         text_content = request.POST.get('message')
-        html_content = f'<h2>{subject}</h2><p>{text_content}</p>'
+        html_content = f'''
+        <html>
+            <head>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    h2 {{ color: #000; border-bottom: 1px solid #ddd; padding-bottom: 10px; }}
+                    .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
+                    .logo {{ text-align: center; margin-bottom: 20px; }}
+                    .button {{ display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }}
+                    .button:hover {{ background-color: #333; }}
+                </style>
+            </head>
+            <body>
+                <div class="logo">
+                    <h1>GOES - God On Every Side</h1>
+                </div>
+                <h2>{subject}</h2>
+                <div class="content">
+                    {text_content}
+                </div>
+                <div class="footer">
+                    <p>© {time.strftime('%Y')} GOES Clothing. All rights reserved.</p>
+                    <p>You received this email because you subscribed to our newsletter.</p>
+                    <p>If you wish to unsubscribe, please <a href="#">click here</a>.</p>
+                </div>
+            </body>
+        </html>
+        '''
         subscribers = Newsletter.objects.values_list('email', flat=True)
 
         if not subscribers:
@@ -52,21 +82,51 @@ def send_newsletter(request):
             return redirect('send_newsletter')
 
         try:
-            for subscriber in subscribers:
-                email = EmailMultiAlternatives(
-                    subject=subject,
-                    body=text_content,
-                    from_email='abdullahiaaron112@gmail.com',
-                    to=[subscriber]
-                )
-                email.attach_alternative(html_content, "text/html")
-                email.send()
-            messages.success(request, 'Newsletter sent successfully!')
+            # Send emails in batches to avoid rate limiting
+            batch_size = 50
+            total_sent = 0
+            failed_emails = []
+            
+            for i in range(0, len(subscribers), batch_size):
+                batch = subscribers[i:i+batch_size]
+                
+                for subscriber in batch:
+                    try:
+                        email = EmailMultiAlternatives(
+                            subject=subject,
+                            body=text_content,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            to=[subscriber]
+                        )
+                        email.attach_alternative(html_content, "text/html")
+                        email.send()
+                        total_sent += 1
+                    except Exception as e:
+                        failed_emails.append(subscriber)
+                        print(f"Failed to send to {subscriber}: {str(e)}")
+                        
+                # Add a small delay between batches to avoid rate limiting
+                if i + batch_size < len(subscribers):
+                    time.sleep(1)
+            
+            if failed_emails:
+                messages.warning(request, f'Newsletter sent to {total_sent} subscribers. Failed to send to {len(failed_emails)} subscribers.')
+            else:
+                messages.success(request, f'Newsletter sent successfully to all {total_sent} subscribers!')
+                
         except Exception as e:
             messages.error(request, f'Failed to send newsletter: {str(e)}')
 
         return redirect('send_newsletter')
-    return render(request, 'GOESAPP/send_newsletter.html')
+    return render(request, 'GOESApp/send_newsletter.html')
+
+
+from django.http import JsonResponse
+
+def subscriber_count(request):
+    """Return the count of newsletter subscribers as JSON"""
+    count = Newsletter.objects.count()
+    return JsonResponse({'count': count})
 
 def shop(request):
     category_id = request.GET.get('category')

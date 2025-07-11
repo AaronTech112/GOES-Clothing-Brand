@@ -164,4 +164,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-379d535caf0b456b195dda9e9d273851-X"
 FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-7ba40c4cd5f46abc0bbea6be8c5b6b01-X"
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'godoneveryside@gmail.com'
+EMAIL_HOST_PASSWORD = 'sbvi apwk qkep qldn'
+DEFAULT_FROM_EMAIL = 'godoneveryside@gmail.com'
