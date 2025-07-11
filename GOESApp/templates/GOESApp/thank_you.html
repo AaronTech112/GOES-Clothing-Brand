@@ -177,8 +177,12 @@
     <div class="thank-you-card">
       <h2>Thank You for Your Purchase!</h2>
       <p>Your order has been successfully placed and is on its way.</p>
+      <p>A confirmation email has been sent to <strong>{{ transaction.user.email }}</strong>.</p>
       <p>Check your order status and details in your account.</p>
-      <a href="{% url 'profile' %}" class="btn btn-primary">View My Orders</a>
+      <div class="mt-4">
+        <a href="{% url 'profile' %}" class="btn btn-primary me-2">View My Orders</a>
+        <a href="{% url 'shop' %}" class="btn btn-outline-dark">Continue Shopping</a>
+      </div>
     </div>
   </div>
 			<!-- Improved Footer -->

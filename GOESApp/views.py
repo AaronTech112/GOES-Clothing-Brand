@@ -42,6 +42,7 @@ def home(request):
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 import time
+import requests
 
 def send_newsletter(request):
     if request.method == 'POST':
@@ -287,7 +288,7 @@ def payment_callback(request):
                     verification_response['data']['amount'] == float(transaction.amount) and
                     verification_response['data']['currency'] == 'NGN'):
                     transaction.flw_transaction_id = transaction_id
-                    transaction.transaction_status = 'processing'
+                    transaction.transaction_status = 'approved'
                     transaction.save()
                     cart = Cart.objects.get(user=transaction.user)
                     cart_items = cart.items.all()
@@ -301,6 +302,9 @@ def payment_callback(request):
                             transaction.save()
                             return HttpResponse(status=400)
                     cart_items.delete()
+                    
+                    # Send order confirmation email
+                    send_order_confirmation_email(transaction)
             elif status == 'failed':
                 transaction.transaction_status = 'declined'
                 transaction.save()
@@ -338,7 +342,14 @@ def payment_callback(request):
                             messages.error(request, f"Insufficient stock for {product.name}.")
                             return redirect('cart')
                     cart_items.delete()
-                    messages.success(request, "Payment successful! Your order is being processed.")
+                    # Update transaction status to approved
+                    transaction.transaction_status = 'approved'
+                    transaction.save()
+                    
+                    # Send order confirmation email
+                    send_order_confirmation_email(transaction)
+                    
+                    messages.success(request, "Payment successful! Your order is being processed. A confirmation email has been sent to your email address.")
                     return redirect('thank_you', transaction_id=transaction.id)  # Redirect to thank_you page
                 else:
                     print(f"Verification failed: {verification_response}")
@@ -359,6 +370,110 @@ def payment_callback(request):
             messages.error(request, f"Payment failed with status: {status}. Please try again.")
 
         return redirect('cart')
+
+def send_order_confirmation_email(transaction):
+    """Send order confirmation email to the customer"""
+    subject = f'GOES Clothing - Order Confirmation #{transaction.id}'
+    
+    # Get the products associated with this transaction
+    products = transaction.products.all()
+    product_list = '\n'.join([f"- {product.name} - ₦{product.price}" for product in products])
+    
+    # Get the shipping address
+    address = transaction.address
+    address_text = f"{address.street}, {address.city}, {address.state}, {address.postal_code}, {address.country}"
+    
+    # Create text content
+    text_content = f"""Dear {transaction.user.first_name} {transaction.user.last_name},
+
+Thank you for your purchase from GOES Clothing!
+
+Order Details:
+Order Number: #{transaction.id}
+Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
+Total Amount: ₦{transaction.amount}
+
+Products:
+{product_list}
+
+Shipping Address:
+{address_text}
+
+{f'Order Note: {transaction.order_note}' if transaction.order_note else ''}
+
+Your order is being processed and will be shipped soon.
+
+Thank you for shopping with us!
+
+GOES Clothing Team
+God On Every Side
+    """
+    
+    # Create HTML content
+    html_content = f'''
+    <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                h2 {{ color: #000; border-bottom: 1px solid #ddd; padding-bottom: 10px; }}
+                .order-details {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }}
+                .product-item {{ margin-bottom: 5px; }}
+                .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
+                .logo {{ text-align: center; margin-bottom: 20px; }}
+                .button {{ display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }}
+                .button:hover {{ background-color: #333; }}
+            </style>
+        </head>
+        <body>
+            <div class="logo">
+                <h1>GOES - God On Every Side</h1>
+            </div>
+            <h2>Order Confirmation #{transaction.id}</h2>
+            <p>Dear {transaction.user.first_name} {transaction.user.last_name},</p>
+            <p>Thank you for your purchase from GOES Clothing!</p>
+            
+            <div class="order-details">
+                <h3>Order Details:</h3>
+                <p><strong>Order Number:</strong> #{transaction.id}</p>
+                <p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>
+                <p><strong>Total Amount:</strong> ₦{transaction.amount}</p>
+                
+                <h3>Products:</h3>
+                <ul>
+                    {"\n".join([f"<li class='product-item'>{product.name} - ₦{product.price}</li>" for product in products])}
+                </ul>
+                
+                <h3>Shipping Address:</h3>
+                <p>{address_text}</p>
+                
+                {f'<h3>Order Note:</h3><p>{transaction.order_note}</p>' if transaction.order_note else ''}
+            </div>
+            
+            <p>Your order is being processed and will be shipped soon.</p>
+            <p>Thank you for shopping with us!</p>
+            
+            <div class="footer">
+                <p><strong>GOES Clothing Team</strong></p>
+                <p>God On Every Side</p>
+                <p>© {time.strftime('%Y')} GOES Clothing. All rights reserved.</p>
+            </div>
+        </body>
+    </html>
+    '''
+    
+    try:
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[transaction.user.email]
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        return True
+    except Exception as e:
+        print(f"Failed to send order confirmation email: {str(e)}")
+        return False
 
 def thank_you(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
