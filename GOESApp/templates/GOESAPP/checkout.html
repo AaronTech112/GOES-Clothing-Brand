@@ -246,6 +246,17 @@
             <div class="d-grid gap-2 mt-4">
               <form method="POST" action="{% url 'checkout' %}">
                 {% csrf_token %}
+                <div class="mb-4 p-3" style="background-color: #f8f9fa; border-radius: 10px; border-left: 4px solid #6c757d;">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-pencil-square me-2" style="font-size: 1.2rem; color: #6c757d;"></i>
+                    <label for="orderNote" class="form-label fw-bold mb-0">Order Note (Optional)</label>
+                  </div>
+                  <textarea class="form-control" id="orderNote" name="order_note" rows="3" placeholder="Add any special instructions or notes about your order here..." style="border-radius: 8px; border: 1px solid #ced4da; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;" maxlength="500"></textarea>
+                  <div class="d-flex justify-content-between mt-2">
+                    <small class="text-muted"><i class="bi bi-info-circle me-1"></i>You can include delivery instructions, gift message, or any other special requests.</small>
+                    <small class="text-muted"><span id="charCount">0</span>/500 characters</small>
+                  </div>
+                </div>
                 <input type="hidden" name="proceed_to_pay" value="true">
                 <button type="submit" class="btn btn-dark" id="proceedToPayBtn" {% if not has_address %}disabled{% endif %}>Proceed to Pay</button>
               </form>
@@ -402,7 +413,9 @@
     document.addEventListener('DOMContentLoaded', function () {
       const addressForm = document.getElementById('addressForm');
       const proceedToPayBtn = document.getElementById('proceedToPayBtn');
-
+      const orderNote = document.getElementById('orderNote');
+      const charCount = document.getElementById('charCount');
+      
       // Check if success message is present (indicating address was saved)
       const successMessage = document.querySelector('.alert-success');
       if (successMessage) {
@@ -422,8 +435,22 @@
           proceedToPayBtn.removeAttribute('disabled');
         }
       });
+      
+      // Character counter for order note
+      if (orderNote && charCount) {
+        // Update character count on input
+        orderNote.addEventListener('input', function() {
+          charCount.textContent = this.value.length;
+          
+          // Change color when approaching limit
+          if (this.value.length > 400) {
+            charCount.style.color = '#dc3545'; // Bootstrap danger color
+          } else {
+            charCount.style.color = ''; // Reset to default
+          }
+        });
+      }
     });
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -199,11 +199,13 @@ def checkout(request):
                 return redirect('checkout')
             # Create a transaction before redirecting to Flutterwave
             tx_ref = f"txn-{uuid.uuid4().hex[:10]}"  # Generate unique transaction reference
+            order_note = request.POST.get('order_note', '')
             transaction = Transaction.objects.create(
                 user=request.user,
                 amount=total_price,
                 tx_ref=tx_ref,
                 address=address,
+                order_note=order_note,
                 transaction_status='pending'
             )
             # Add products to the transaction

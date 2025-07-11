@@ -129,6 +129,7 @@ class Transaction(models.Model):
     tx_ref = models.CharField(max_length=100, unique=True)  # Ensure unique tx_ref
     flw_transaction_id = models.CharField(max_length=100, blank=True, null=True)  # Store Flutterwave transaction ID
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)  # Link to address
+    order_note = models.TextField(blank=True, null=True)  # Optional order note field
     TRANSACTION_STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('processing', 'Processing'),
