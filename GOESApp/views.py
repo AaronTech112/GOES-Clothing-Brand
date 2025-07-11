@@ -249,7 +249,7 @@ def checkout(request):
 @login_required(login_url='/login_user')
 def initiate_payment(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
-    cart = Cart.objects.get(user=request.user)
+    cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = cart.items.all()
 
     context = {
@@ -296,7 +296,7 @@ def payment_callback(request):
                     transaction.flw_transaction_id = transaction_id
                     transaction.transaction_status = 'approved'
                     transaction.save()
-                    cart = Cart.objects.get(user=transaction.user)
+                    cart, created = Cart.objects.get_or_create(user=transaction.user)
                     cart_items = cart.items.all()
                     for cart_item in cart_items:
                         product = cart_item.product
@@ -335,7 +335,7 @@ def payment_callback(request):
                     transaction.flw_transaction_id = transaction_id
                     transaction.transaction_status = 'processing'
                     transaction.save()
-                    cart = Cart.objects.get(user=transaction.user)
+                    cart, created = Cart.objects.get_or_create(user=transaction.user)
                     cart_items = cart.items.all()
                     for cart_item in cart_items:
                         product = cart_item.product
@@ -503,7 +503,10 @@ def send_order_confirmation_email(transaction):
 def thank_you(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
     categories = Category.objects.all()
-    cart_count = Cart.objects.get(user=request.user).items.count() if request.user.is_authenticated else 0
+    cart_count = 0
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_count = cart.items.count()
 
     context = {
         'transaction': transaction,
@@ -599,7 +602,10 @@ def remove_from_cart(request, item_id):
 def order_detail(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
     categories = Category.objects.all()
-    cart_count = Cart.objects.get(user=request.user).items.count() if request.user.is_authenticated else 0
+    cart_count = 0
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_count = cart.items.count()
 
     context = {
         'transaction': transaction,
@@ -613,7 +619,10 @@ def profile(request):
     user = request.user
     address = user.address if hasattr(user, 'address') else None
     categories = Category.objects.all()
-    cart_count = Cart.objects.get(user=user).items.count() if user.is_authenticated else 0
+    cart_count = 0
+    if user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=user)
+        cart_count = cart.items.count()
 
     # Fetch transactions
     transactions = Transaction.objects.filter(user=user).order_by('-transaction_date')
@@ -803,7 +812,10 @@ def product_detail(request, product_id):
 # views.py
 def our_story(request):
     categories = Category.objects.all()
-    cart_count = Cart.objects.get(user=request.user).items.count() if request.user.is_authenticated else 0
+    cart_count = 0
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_count = cart.items.count()
 
     context = {
         'categories': categories,
@@ -814,7 +826,10 @@ def our_story(request):
 # views.py
 def policies(request):
     categories = Category.objects.all()
-    cart_count = Cart.objects.get(user=request.user).items.count() if request.user.is_authenticated else 0
+    cart_count = 0
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_count = cart.items.count()
 
     context = {
         'categories': categories,
