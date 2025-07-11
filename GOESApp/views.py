@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm , CheckoutForm, AddressForm, NewsletterForm
 from django.contrib import messages
-from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages
+from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages, CustomUser
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
@@ -12,6 +12,12 @@ import requests
 from django.conf import settings
 from django.db.models import Q
 from django.core.mail import send_mass_mail
+from django.contrib.auth.forms import PasswordResetForm
+from django.template.loader import render_to_string
+from django.db.models.query_utils import Q
+from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
 
 def home(request):
     if request.method == 'POST':
@@ -386,80 +392,99 @@ def send_order_confirmation_email(transaction):
     # Create text content
     text_content = f"""Dear {transaction.user.first_name} {transaction.user.last_name},
 
-Thank you for your purchase from GOES Clothing!
+        Thank you for your purchase from GOES Clothing!
 
-Order Details:
-Order Number: #{transaction.id}
-Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
-Total Amount: ₦{transaction.amount}
+        Order Details:
+        Order Number: #{transaction.id}
+        Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
+        Total Amount: ₦{transaction.amount}
 
-Products:
-{product_list}
+        Products:
+        {product_list}
 
-Shipping Address:
-{address_text}
+        Shipping Address:
+        {address_text}
 
-{f'Order Note: {transaction.order_note}' if transaction.order_note else ''}
+        {'Order Note: ' + transaction.order_note if transaction.order_note else ''}
 
-Your order is being processed and will be shipped soon.
+        Your order is being processed and will be shipped soon.
 
-Thank you for shopping with us!
+        Thank you for shopping with us!
 
-GOES Clothing Team
-God On Every Side
-    """
-    
+        GOES Clothing Team
+        God On Every Side
+            """
+            
     # Create HTML content
-    html_content = f'''
+    # Using a combination of regular strings and f-strings to avoid backslash issues
+    style_content = '''
     <html>
         <head>
             <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }}
-                h2 {{ color: #000; border-bottom: 1px solid #ddd; padding-bottom: 10px; }}
-                .order-details {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }}
-                .product-item {{ margin-bottom: 5px; }}
-                .footer {{ margin-top: 30px; font-size: 12px; color: #777; text-align: center; }}
-                .logo {{ text-align: center; margin-bottom: 20px; }}
-                .button {{ display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }}
-                .button:hover {{ background-color: #333; }}
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+                h2 { color: #000; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+                .order-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+                .product-item { margin-bottom: 5px; }
+                .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+                .logo { text-align: center; margin-bottom: 20px; }
+                .button { display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+                .button:hover { background-color: #333; }
             </style>
         </head>
         <body>
             <div class="logo">
                 <h1>GOES - God On Every Side</h1>
             </div>
-            <h2>Order Confirmation #{transaction.id}</h2>
-            <p>Dear {transaction.user.first_name} {transaction.user.last_name},</p>
-            <p>Thank you for your purchase from GOES Clothing!</p>
-            
-            <div class="order-details">
-                <h3>Order Details:</h3>
-                <p><strong>Order Number:</strong> #{transaction.id}</p>
-                <p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>
-                <p><strong>Total Amount:</strong> ₦{transaction.amount}</p>
-                
-                <h3>Products:</h3>
-                <ul>
-                    {"\n".join([f"<li class='product-item'>{product.name} - ₦{product.price}</li>" for product in products])}
-                </ul>
-                
-                <h3>Shipping Address:</h3>
-                <p>{address_text}</p>
-                
-                {f'<h3>Order Note:</h3><p>{transaction.order_note}</p>' if transaction.order_note else ''}
-            </div>
-            
-            <p>Your order is being processed and will be shipped soon.</p>
-            <p>Thank you for shopping with us!</p>
-            
-            <div class="footer">
-                <p><strong>GOES Clothing Team</strong></p>
-                <p>God On Every Side</p>
-                <p>© {time.strftime('%Y')} GOES Clothing. All rights reserved.</p>
-            </div>
-        </body>
-    </html>
     '''
+            
+    # Combine the style with dynamic content using string formatting to avoid f-string backslash issues
+    # Create product list HTML without using f-strings in the list comprehension
+    product_items = []
+    for product in products:
+        product_items.append(f'<li class="product-item">{product.name} - ₦{product.price}</li>')
+    product_list_html = '\n'.join(product_items)
+    
+    # Create order note HTML if it exists
+    order_note_html = ''
+    if transaction.order_note:
+        order_note_html = f'<h3>Order Note:</h3><p>{transaction.order_note}</p>'
+    
+    # Create the dynamic content without nested f-strings
+    dynamic_content = (
+        f"<h2>Order Confirmation #{transaction.id}</h2>\n"
+        f"<p>Dear {transaction.user.first_name} {transaction.user.last_name},</p>\n"
+        f"<p>Thank you for your purchase from GOES Clothing!</p>\n\n"
+        
+        f"<div class=\"order-details\">\n"
+        f"<h3>Order Details:</h3>\n"
+        f"<p><strong>Order Number:</strong> #{transaction.id}</p>\n"
+        f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
+        f"<p><strong>Total Amount:</strong> ₦{transaction.amount}</p>\n\n"
+        
+        f"<h3>Products:</h3>\n"
+        f"<ul>\n"
+        f"{product_list_html}\n"
+        f"</ul>\n\n"
+        
+        f"<h3>Shipping Address:</h3>\n"
+        f"<p>{address_text}</p>\n\n"
+        
+        f"{order_note_html}\n"
+        f"</div>\n\n"
+        
+        f"<p>Your order is being processed and will be shipped soon.</p>\n"
+        f"<p>Thank you for shopping with us!</p>\n\n"
+        
+        f"<div class=\"footer\">\n"
+        f"<p><strong>GOES Clothing Team</strong></p>\n"
+        f"<p>God On Every Side</p>\n"
+        f"<p>© {time.strftime('%Y')} GOES Clothing. All rights reserved.</p>\n"
+        f"</div>\n"
+        f"</body>\n"
+        "</html>"
+    )
+    
+    html_content = style_content + dynamic_content
     
     try:
         email = EmailMultiAlternatives(
@@ -704,6 +729,51 @@ def login_user(request):
             else:
                 messages.error(request, 'Invalid email or password.')
         return render(request, 'GOESAPP/login.html', {'error_message': error_message})
+
+
+def password_reset_request(request):
+    categories = Category.objects.all()
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = CustomUser.objects.filter(Q(email=data))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "GOESApp/password_reset_email.html"
+                    c = {
+                        "email": user.email,
+                        'domain': request.META['HTTP_HOST'],
+                        'site_name': 'GOES Clothing',
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        'token': default_token_generator.make_token(user),
+                        'protocol': 'https' if request.is_secure() else 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        from django.core.mail import EmailMessage
+                        email_message = EmailMessage(
+                            subject, email, settings.DEFAULT_FROM_EMAIL, [user.email]
+                        )
+                        email_message.content_subtype = 'html'
+                        email_message.send()
+                    except Exception as e:
+                        return render(request, "GOESApp/password_reset_form.html", {
+                            "form": password_reset_form,
+                            "error": f"There was an error sending an email: {e}",
+                            "categories": categories,
+                        })
+                    return redirect("password_reset_done")
+            else:
+                messages.error(request, "No user is associated with this email address.")
+                return render(request, "GOESApp/password_reset_form.html", {
+                    "form": password_reset_form,
+                    "categories": categories,
+                })
+    password_reset_form = PasswordResetForm()
+    return render(request=request, template_name="GOESApp/password_reset_form.html", context={"form": password_reset_form, "categories": categories})
 
 
 def logout_user(request):
