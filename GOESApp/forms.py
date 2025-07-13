@@ -46,8 +46,9 @@ class ProfileForm(forms.ModelForm):
 class CheckoutForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['street', 'city', 'state', 'postal_code', 'country','phone_number']
+        fields = ['full_name', 'street', 'city', 'state', 'postal_code', 'country','phone_number']
         widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter full name'}),
             'street': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter street address'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter city'}),
             'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter state'}),
@@ -59,8 +60,9 @@ class CheckoutForm(forms.ModelForm):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['street', 'city', 'state', 'postal_code', 'country','phone_number']
+        fields = ['full_name', 'street', 'city', 'state', 'postal_code', 'country','phone_number']
         widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter full name'}),
             'street': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter street address'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter city'}),
             'state': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter state'}),

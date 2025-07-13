@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class Address(models.Model):
+    full_name = models.CharField(max_length=100, blank=True, null=True)
     street = models.CharField(max_length=255, blank=True, null=True)      
     city = models.CharField(max_length=100, blank=True, null=True)
     state = models.CharField(max_length=100, blank=True, null=True)
