@@ -247,7 +247,7 @@
                   <span class="slash-price">₦{{ product.slash_price|floatformat:0 }}</span>
                 {% endif %}
               </p>
-              <form action="{% url 'add_to_cart' product.id %}" method="POST" class="d-inline">
+              <form action="{% url 'product_detail' product.id %}" method="POST" class="d-inline">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-sm btn-outline-dark mt-2">Add to Cart</button>

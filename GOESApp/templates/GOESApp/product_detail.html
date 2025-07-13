@@ -278,7 +278,7 @@
             <a href="{% url 'category_detail' cat.slug %}">{{ cat.name }}</a>
           {% endfor %}
         </div>
-        <div class="mb-4 text-muted"><small>SKU: {{ product.sku }}</small></div>
+        
         <div class="product-description">
             {{ product.description|safe }}
         </div>
@@ -292,18 +292,20 @@
     <div class="row g-4">
       {% for rel in related_products %}
       <div class="col-md-6 col-lg-3">
-        <div class="card border-0">
-          <img src="{{ rel.images.first.image.url }}" class="card-img-top" alt="{{ rel.name }}">
-          <div class="card-body text-center">
-            <h5 class="card-title">{{ rel.name }}</h5>
-            <div class="d-flex justify-content-center mb-2 color-picker">
-              {% for c in rel.available_colors|slice:":3" %}
-                <button class="btn" style="background:{{ c.code }}"></button>
-              {% endfor %}
+        <a href="{% url 'product_detail' rel.id %}" class="text-decoration-none">
+          <div class="card border-0">
+            <img src="{{ rel.images.first.image.url }}" class="card-img-top" alt="{{ rel.name }}">
+            <div class="card-body text-center">
+              <h5 class="card-title text-dark">{{ rel.name }}</h5>
+              <div class="d-flex justify-content-center mb-2 color-picker">
+                {% for c in rel.available_colors|slice:":3" %}
+                  <button class="btn" style="background:{{ c.code }}"></button>
+                {% endfor %}
+              </div>
+              <p class="h5 text-dark">₦{{ rel.price|floatformat:2 }}</p>
             </div>
-            <p class="h5 text-dark">₦{{ rel.price|floatformat:2 }}</p>
           </div>
-        </div>
+        </a>
       </div>
       {% endfor %}
     </div>
