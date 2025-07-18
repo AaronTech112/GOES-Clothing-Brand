@@ -172,7 +172,7 @@ def checkout(request):
     cart = None
     cart_items = []
     total_price = 0
-    shipping_fee = 2000  # Example fixed shipping fee in NGN
+    shipping_fee = 2000  # Default shipping fee for Abuja in NGN
     subtotal = 0
     address = None
     has_address = False
@@ -181,7 +181,6 @@ def checkout(request):
         cart = Cart.objects.get(user=request.user)
         cart_items = cart.items.all()
         subtotal = sum(item.total_price() for item in cart_items)
-        total_price = subtotal + shipping_fee
         address = request.user.address if hasattr(request.user, 'address') and request.user.address else None
         has_address = address is not None and all([
             address.street,
@@ -191,6 +190,22 @@ def checkout(request):
             address.country,
             address.phone_number
         ])
+        
+        # Calculate shipping fee based on address if available
+        if has_address:
+            country = address.country.lower() if address.country else ''
+            state = address.state.lower() if address.state else ''
+            
+            if country == 'nigeria':
+                if state == 'abuja' or state == 'federal capital territory' or state == 'fct':
+                    shipping_fee = 2000  # Abuja/FCT shipping fee
+                else:
+                    shipping_fee = 5000  # Other Nigerian states shipping fee
+            else:
+                shipping_fee = 15000  # International shipping fee
+        
+        total_price = subtotal + shipping_fee
+        
     except Cart.DoesNotExist:
         messages.error(request, "Your cart is empty.")
         return redirect('cart')
@@ -227,6 +242,21 @@ def checkout(request):
                 if not request.user.address:
                     request.user.address = address
                     request.user.save()
+                
+                # Recalculate shipping fee based on new address
+                country = form.cleaned_data.get('country', '').lower()
+                state = form.cleaned_data.get('state', '').lower()
+                
+                if country == 'nigeria':
+                    if state == 'abuja' or state == 'federal capital territory' or state == 'fct':
+                        shipping_fee = 2000  # Abuja/FCT shipping fee
+                    else:
+                        shipping_fee = 5000  # Other Nigerian states shipping fee
+                else:
+                    shipping_fee = 15000  # International shipping fee
+                
+                total_price = subtotal + shipping_fee
+                
                 messages.success(request, "Delivery address updated successfully.")
                 return redirect('checkout')
             else:
@@ -674,12 +704,27 @@ def cart(request):
     cart = None
     cart_items = []
     total_price = 0
-    shipping_fee = 2000  # Example fixed shipping fee in NGN
+    shipping_fee = 2000  # Default shipping fee for Abuja in NGN
     subtotal = 0
 
     try:
         if request.user.is_authenticated:
             cart = Cart.objects.get(user=request.user)
+            # Get user's address if available to calculate shipping
+            address = None
+            if hasattr(request.user, 'address') and request.user.address:
+                address = request.user.address
+                # Calculate shipping fee based on location
+                country = address.country.lower() if address.country else ''
+                state = address.state.lower() if address.state else ''
+                
+                if country == 'nigeria':
+                    if state == 'abuja' or state == 'federal capital territory' or state == 'fct':
+                        shipping_fee = 2000  # Abuja/FCT shipping fee
+                    else:
+                        shipping_fee = 5000  # Other Nigerian states shipping fee
+                else:
+                    shipping_fee = 15000  # International shipping fee
         else:
             session_key = request.session.session_key
             if session_key:

@@ -245,6 +245,10 @@
               <span>Shipping:</span>
               <span>₦{{ shipping_fee|floatformat:0 }}</span>
             </p>
+            <div class="shipping-info small text-muted mb-2">
+              <i class="bi bi-info-circle me-1"></i>
+              Shipping costs: ₦2,000 for Abuja/FCT, ₦5,000 for other Nigerian states, ₦15,000 for international orders.
+            </div>
             <hr />
             <p class="d-flex justify-content-between fw-bold">
               <span>Total:</span>
@@ -427,6 +431,55 @@
       const originalStateField = document.querySelector('select[name="state"]');
       let stateInputField = null;
       
+      // Get shipping and total price elements
+      const shippingFeeElement = document.querySelector('.d-flex.justify-content-between:nth-of-type(2) span:last-child');
+      const totalPriceElement = document.querySelector('.d-flex.justify-content-between.fw-bold span:last-child');
+      const subtotalElement = document.querySelector('.d-flex.justify-content-between:nth-of-type(1) span:last-child');
+      
+      // Extract subtotal value
+      let subtotal = 0;
+      if (subtotalElement) {
+        const subtotalText = subtotalElement.textContent.trim();
+        subtotal = parseFloat(subtotalText.replace('₦', '').replace(/,/g, ''));
+      }
+      
+      // Function to update shipping fee and total price
+      function updateShippingFee() {
+        const selectedCountry = countrySelect.value;
+        let selectedState = '';
+        
+        // Get the state value from either the dropdown or text input
+        if (stateInputField && stateInputField.style.display !== 'none') {
+          selectedState = stateInputField.value.toLowerCase();
+        } else if (originalStateField && originalStateField.style.display !== 'none') {
+          selectedState = originalStateField.value.toLowerCase();
+        }
+        
+        // Calculate shipping fee based on location
+         let shippingFee = 2000; // Default for Abuja
+         
+         if (selectedCountry.toLowerCase() === 'nigeria') {
+           if (selectedState === 'abuja' || selectedState === 'federal capital territory' || selectedState === 'fct') {
+             shippingFee = 2000;
+           } else {
+             shippingFee = 5000;
+           }
+         } else {
+           shippingFee = 15000;
+         }
+        
+        // Update the shipping fee display
+        if (shippingFeeElement) {
+          shippingFeeElement.textContent = '₦' + shippingFee.toLocaleString();
+        }
+        
+        // Update the total price
+        if (totalPriceElement && !isNaN(subtotal)) {
+          const totalPrice = subtotal + shippingFee;
+          totalPriceElement.textContent = '₦' + totalPrice.toLocaleString();
+        }
+      }
+      
       // Function to handle country change
       function handleCountryChange() {
         const selectedCountry = countrySelect.value;
@@ -454,10 +507,17 @@
             stateInputField.placeholder = 'Enter state/province/region';
             stateInputField.required = originalStateField.required;
             
+            // Add event listener to update shipping when state changes
+            stateInputField.addEventListener('input', updateShippingFee);
+            
             // Insert the text input after the hidden dropdown
             originalStateField.insertAdjacentElement('afterend', stateInputField);
           }
         }
+        
+        // Update shipping fee when country changes
+        updateShippingFee();
+      }
       }
       
       // Add event listener for country change
@@ -466,6 +526,11 @@
         
         // Call the function on page load to set the initial state
         handleCountryChange();
+      }
+      
+      // Add event listener for state dropdown change
+      if (originalStateField) {
+        originalStateField.addEventListener('change', updateShippingFee);
       }
       
       // Check if success message is present (indicating address was saved)
