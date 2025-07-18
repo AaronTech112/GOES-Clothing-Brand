@@ -151,7 +151,7 @@
     <div class="container">
       <div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-hh9pp43d mcb-item-header_logo-inner">
         <a class="logo-wrapper" href="{% url 'home' %}">
-          <img style="width:100px;" src="{% static 'images/LOGO_20_TRANS[1].png'%}" alt="GOES Logo" />
+          <img style="width:100px;" src="{% static 'images/LOGO_20_TRANS[1].png'%}" alt="clothingstore2" />
         </a>
       </div>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -159,9 +159,6 @@
       </button>
       <div class="collapse navbar-collapse" id="navMenu">
         <ul class="navbar-nav mx-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'shop' %}">New Arrivals</a>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="collectionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Shop
@@ -174,6 +171,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'our_story' %}">Our Story</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'shop' %}">Look Book</a>
           </li>
         </ul>
         <ul class="navbar-nav ms-auto align-items-center">
