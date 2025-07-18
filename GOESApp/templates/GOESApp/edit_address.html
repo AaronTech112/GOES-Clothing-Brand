@@ -324,5 +324,53 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const countrySelect = document.querySelector('select[name="country"]');
+      const originalStateField = document.querySelector('select[name="state"]');
+      let stateInputField = null;
+      
+      // Function to handle country change
+      function handleCountryChange() {
+        const selectedCountry = countrySelect.value;
+        
+        // If Nigeria is selected, show the dropdown
+        if (selectedCountry === 'Nigeria') {
+          // If we previously created a text input, remove it and restore the dropdown
+          if (stateInputField) {
+            stateInputField.remove();
+            stateInputField = null;
+            originalStateField.style.display = '';
+          }
+        } else {
+          // For other countries, replace dropdown with text input
+          if (!stateInputField) {
+            // Hide the original dropdown
+            originalStateField.style.display = 'none';
+            
+            // Create a text input field
+            stateInputField = document.createElement('input');
+            stateInputField.type = 'text';
+            stateInputField.name = 'state';
+            stateInputField.id = originalStateField.id;
+            stateInputField.className = 'form-control';
+            stateInputField.placeholder = 'Enter state/province/region';
+            stateInputField.required = originalStateField.required;
+            
+            // Insert the text input after the hidden dropdown
+            originalStateField.insertAdjacentElement('afterend', stateInputField);
+          }
+        }
+      }
+      
+      // Add event listener for country change
+      if (countrySelect) {
+        countrySelect.addEventListener('change', handleCountryChange);
+        
+        // Call the function on page load to set the initial state
+        handleCountryChange();
+      }
+    });
+  </script>
 </body>
 </html>
