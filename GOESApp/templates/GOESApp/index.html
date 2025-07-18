@@ -6212,7 +6212,7 @@
 
             <!-- Desktop Nav -->
             <div class="desktop-nav" style="display: flex; align-items: center; gap: 40px;">
-                <a href="{% url 'shop' %}" style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: black; text-decoration: none; font-weight: normal; margin-right: 16px;">New Arrivals</a>
+
                 <div class="dropdown" style="position: relative;">
                     <a href="#" class="dropdown-toggle" id="collectionsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: black; text-decoration: none; font-weight: normal; margin-right: 16px;">
                         Shop
@@ -6224,6 +6224,7 @@
                     </ul>
                 </div>
                 <a href="{% url 'our_story' %}" style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: black; text-decoration: none; font-weight: normal; margin-right: 32px;">Our Story</a>
+                <a href="{% url 'shop' %}" style="font-family: 'Poppins', sans-serif; font-size: 1.18rem; color: black; text-decoration: none; font-weight: normal; margin-right: 16px;">Look Book</a>
                 
                 <!-- Icons -->
                 <a href="{% url 'cart' %}" style="margin-right: 18px; color: black; position: relative;">
@@ -6249,7 +6250,6 @@
             <!-- Mobile Nav (Hamburger Menu) -->
             <div class="collapse navbar-collapse mobile-nav" id="mobileNav">
                 <ul>
-                    <li><a href="{% url 'shop' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal;">New Arrivals</a></li>
                     <li>
                         <a href="#" class="mobile-dropdown-toggle" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Shop <i class="fa fa-chevron-down" style="font-size: 0.9rem;"></i></a>
                         <ul class="mobile-dropdown-menu" style="display: none; list-style: none; padding: 0; margin: 10px 0 24px 20px;">
@@ -6259,6 +6259,7 @@
                         </ul>
                     </li>
                     <li><a href="{% url 'our_story' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Our Story</a></li>
+                    <li><a href="{% url 'shop' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal;">Look Book</a></li>
                     <li>
                         <a href="{% url 'cart' %}" style="font-family: 'Poppins', sans-serif; font-weight: normal;">
                             <i class="fa fa-shopping-cart"></i>
