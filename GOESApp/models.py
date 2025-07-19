@@ -89,6 +89,12 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.price}"
+    
+    def save(self, *args, **kwargs):
+        # Automatically deactivate product when stock reaches zero
+        if self.in_stock == 0:
+            self.is_active = False
+        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         self.is_active = False

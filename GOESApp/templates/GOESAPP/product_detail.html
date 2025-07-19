@@ -268,6 +268,17 @@
       <div class="col-lg-6 product-details">
         <h1>{{ product.name }}</h1>
         <p class="h4 mb-3">₦{{ product.price|floatformat:2 }}</p>
+        
+        <!-- Stock Status -->
+        <div class="mb-3">
+          {% if product.in_stock > 10 %}
+            <span class="badge bg-success">In Stock</span>
+          {% elif product.in_stock > 0 %}
+            <span class="badge bg-warning text-dark">Low Stock: Only {{ product.in_stock }} left</span>
+          {% else %}
+            <span class="badge bg-danger">Out of Stock</span>
+          {% endif %}
+        </div>
     
         <!-- Color Picker -->
         <div class="d-flex align-items-center mb-3">
@@ -296,10 +307,12 @@
           {% csrf_token %}
           <input type="hidden" id="selectedSize" name="size" value="">
           <input type="hidden" id="selectedColor" name="color" value="">
-          <button type="button" class="btn btn-outline-secondary" id="decrease">-</button>
+          <button type="button" class="btn btn-outline-secondary" id="decrease" {% if product.in_stock <= 0 %}disabled{% endif %}>-</button>
           <input type="text" id="quantity" name="quantity" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
-          <button type="button" class="btn btn-outline-secondary" id="increase">+</button>
-          <button type="submit" class="btn btn-secondary ms-3 flex-fill">Add to cart</button>
+          <button type="button" class="btn btn-outline-secondary" id="increase" {% if product.in_stock <= 0 %}disabled{% endif %}>+</button>
+          <button type="submit" class="btn btn-secondary ms-3 flex-fill" {% if product.in_stock <= 0 %}disabled{% endif %}>
+            {% if product.in_stock > 0 %}Add to cart{% else %}Out of Stock{% endif %}
+          </button>
         </form>
 
         <!-- Tags -->

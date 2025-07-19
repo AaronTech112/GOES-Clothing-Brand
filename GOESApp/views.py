@@ -558,8 +558,23 @@ def verify_transaction(transaction_id):
 @require_POST
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
+    
+    # Check if product is active and in stock
+    if not product.is_active:
+        messages.error(request, f"{product.name} is currently not available.")
+        return redirect('product_detail', product_id=product.id)
+    
+    if product.in_stock <= 0:
+        messages.error(request, f"{product.name} is out of stock.")
+        return redirect('product_detail', product_id=product.id)
 
     quantity = int(request.POST.get('quantity', 1))
+    
+    # Check if requested quantity is available
+    if quantity > product.in_stock:
+        messages.error(request, f"Only {product.in_stock} units of {product.name} are available.")
+        return redirect('product_detail', product_id=product.id)
+        
     size_name = request.POST.get('size')
     color_name = request.POST.get('color')
 
@@ -594,6 +609,13 @@ def add_to_cart(request, product_id):
         size=size,
         color=color
     )
+    
+    # Check if the updated quantity would exceed available stock
+    new_quantity = cart_item.quantity + quantity if not created else quantity
+    if new_quantity > product.in_stock:
+        messages.error(request, f"Cannot add {quantity} more units. Only {product.in_stock} units of {product.name} are available.")
+        return redirect('product_detail', product_id=product.id)
+        
     if not created:
         cart_item.quantity += quantity
     else:

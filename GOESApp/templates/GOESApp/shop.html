@@ -246,10 +246,22 @@
                   <span class="slash-price">₦{{ product.slash_price|floatformat:0 }}</span>
                 {% endif %}
               </p>
-              <form action="{% url 'product_detail' product.id %}" method="POST" class="d-inline">
-                {% csrf_token %}
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-sm btn-outline-dark mt-2">Add to Cart</button>
+              
+              <!-- Stock Status -->
+              <div class="mb-2">
+                {% if product.in_stock > 10 %}
+                  <span class="badge bg-success">In Stock</span>
+                {% elif product.in_stock > 0 %}
+                  <span class="badge bg-warning text-dark">Low Stock: {{ product.in_stock }}</span>
+                {% else %}
+                  <span class="badge bg-danger">Out of Stock</span>
+                {% endif %}
+              </div>
+              
+              <form action="{% url 'product_detail' product.id %}" method="GET" class="d-inline">
+                <button type="submit" class="btn btn-sm {% if product.in_stock > 0 %}btn-outline-dark{% else %}btn-secondary disabled{% endif %} mt-2">
+                  {% if product.in_stock > 0 %}Add to Cart{% else %}Out of Stock{% endif %}
+                </button>
               </form>
             </div>
           </div>
