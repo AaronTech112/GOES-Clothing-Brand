@@ -425,7 +425,7 @@ def send_order_confirmation_email(transaction):
         Thank you for your purchase from GOES Clothing!
 
         Order Details:
-        Order Number: #{transaction.id}
+        Order Number: #{transaction.flw_transaction_id}
         Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
         Total Amount: ₦{transaction.amount}
 
@@ -487,7 +487,7 @@ def send_order_confirmation_email(transaction):
         
         f"<div class=\"order-details\">\n"
         f"<h3>Order Details:</h3>\n"
-        f"<p><strong>Order Number:</strong> #{transaction.id}</p>\n"
+        f"<p><strong>Order Number:</strong> #{transaction.flw_transaction_id}</p>\n"
         f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
         f"<p><strong>Total Amount:</strong> ₦{transaction.amount}</p>\n\n"
         

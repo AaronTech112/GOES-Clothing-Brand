@@ -246,9 +246,14 @@ COUNTRIES = [
 class RegisterForm(UserCreationForm):
     street      = forms.CharField(max_length=255, required=False)
     city        = forms.CharField(max_length=100, required=True)
-    state       = forms.ChoiceField(choices=NIGERIAN_STATES, required=False, widget=forms.Select(attrs={'class': 'form-control'}))
+    state       = forms.CharField(required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     postal_code = forms.CharField(max_length=20,  required=True)
     country     = forms.ChoiceField(choices=COUNTRIES, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set the choices for the state field
+        self.fields['state'].widget.choices = NIGERIAN_STATES
 
     class Meta:
         model  = CustomUser
@@ -284,11 +289,16 @@ class ProfileForm(forms.ModelForm):
         fields = [ 'username', 'first_name', 'last_name', 'email', 'phone_number', ]
         
 class CheckoutForm(forms.ModelForm):
-    state = forms.ChoiceField(
-        choices=NIGERIAN_STATES, 
+    state = forms.CharField(
         required=True,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        # Using CharField instead of ChoiceField allows us to accept both dropdown selections and text input
     )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set the choices for the state field
+        self.fields['state'].widget.choices = NIGERIAN_STATES
     
     country = forms.ChoiceField(
         choices=COUNTRIES,
@@ -308,11 +318,16 @@ class CheckoutForm(forms.ModelForm):
         }
         
 class AddressForm(forms.ModelForm):
-    state = forms.ChoiceField(
-        choices=NIGERIAN_STATES, 
+    state = forms.CharField(
         required=True,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        # Using CharField instead of ChoiceField allows us to accept both dropdown selections and text input
     )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set the choices for the state field
+        self.fields['state'].widget.choices = NIGERIAN_STATES
     
     country = forms.ChoiceField(
         choices=COUNTRIES,
