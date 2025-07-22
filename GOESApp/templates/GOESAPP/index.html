@@ -6941,9 +6941,9 @@
 					<h5 style="font-family: 'Poppins',sans-serif; font-weight: 700; font-size: 1.5rem; color: black; margin-bottom: 6px;">Join Our Newsletter</h5>
 					<p style="font-family: 'Poppins',sans-serif; font-size: 1.05rem; color: #6d6d6d; margin-bottom: 0;">Get exclusive offers, new drops, and inspiration—straight to your inbox.</p>
 				</div>
-				<form method="post" action="" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; flex: 1 1 320px; min-width: 220px;">
+				<form method="post" action="" id="newsletterForm" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; flex: 1 1 320px; min-width: 220px;">
 					{% csrf_token %}
-					<input type="email" name="email" placeholder="Your email address" required style="padding: 12px 18px; border-radius: 8px; border: 1.5px solid #ffb3b3; font-size: 1.08rem; font-family: 'Poppins',sans-serif; outline: none; flex: 1 1 180px; min-width: 120px; background: #fff !important; color: black !important;">
+					<input type="email" name="email" id="newsletterEmail" placeholder="Your email address" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" style="padding: 12px 18px; border-radius: 8px; border: 1.5px solid #ffb3b3; font-size: 1.08rem; font-family: 'Poppins',sans-serif; outline: none; flex: 1 1 180px; min-width: 120px; background: #fff !important; color: black !important;">
 					<button type="submit" style="padding: 12px 28px; border-radius: 8px; background: red !important; color: #fff !important; font-family: 'Poppins',sans-serif; font-weight: 600; font-size: 1.08rem; border: none; transition: background 0.2s; box-shadow: 0 2px 8px 0 rgba(255,99,132,0.13);">Subscribe</button>
 				</form>
 			</div>
@@ -7633,7 +7633,7 @@
                     <h2>Unlock 5% off your first order</h2>
                     <p>Sign up for more offers and updates</p>
                     <div class="discount-form">
-                        <input type="email" id="discountEmail" placeholder="Email" />
+                        <input type="email" id="discountEmail" placeholder="Email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
                         <button id="unlockOfferBtn">Unlock Offer</button>
                     </div>
                     <p class="discount-terms">By signing up, you agree to receive email marketing</p>
@@ -7801,13 +7801,17 @@
 
             // Handle the unlock offer button
             document.getElementById('unlockOfferBtn').addEventListener('click', function() {
-                const email = document.getElementById('discountEmail').value;
-                if (email) {
+                const emailInput = document.getElementById('discountEmail');
+                const email = emailInput.value;
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                
+                if (email && emailPattern.test(email)) {
                     // Here you would typically send this to your backend
                     // Redirect to the shop page
                     window.location.href = "{% url 'shop' %}";
                 } else {
-                    alert('Please enter your email address');
+                    alert('Please enter a valid email address');
+                    emailInput.focus();
                 }
             });
 
@@ -7817,6 +7821,22 @@
                     document.getElementById('discountModal').style.display = 'none';
                 }
             });
+            
+            // Newsletter form validation
+            const newsletterForm = document.getElementById('newsletterForm');
+            if (newsletterForm) {
+                newsletterForm.addEventListener('submit', function(event) {
+                    const emailInput = document.getElementById('newsletterEmail');
+                    const email = emailInput.value;
+                    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    
+                    if (!email || !emailPattern.test(email)) {
+                        event.preventDefault();
+                        alert('Please enter a valid email address');
+                        emailInput.focus();
+                    }
+                });
+            }
         });
     </script>
 	</body>
