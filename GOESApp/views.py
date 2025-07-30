@@ -339,8 +339,9 @@ def payment_callback(request):
                             return HttpResponse(status=400)
                     cart_items.delete()
                     
-                    # Send order confirmation email
-                    send_order_confirmation_email(transaction)
+                    # Send order confirmation email with request
+                    send_order_confirmation_email(request, transaction)
+                    
             elif status == 'failed':
                 transaction.transaction_status = 'declined'
                 transaction.save()
@@ -382,8 +383,8 @@ def payment_callback(request):
                     transaction.transaction_status = 'approved'
                     transaction.save()
                     
-                    # Send order confirmation email
-                    send_order_confirmation_email(transaction)
+                    # Send order confirmation email with request
+                    send_order_confirmation_email(request, transaction)
                     
                     messages.success(request, "Payment successful! Your order is being processed. A confirmation email has been sent to your email address.")
                     return redirect('thank_you', transaction_id=transaction.id)  # Redirect to thank_you page
@@ -406,8 +407,8 @@ def payment_callback(request):
             messages.error(request, f"Payment failed with status: {status}. Please try again.")
 
         return redirect('cart')
-
-def send_order_confirmation_email(transaction):
+    
+def send_order_confirmation_email(request, transaction):
     """Send order confirmation email to the customer"""
     subject = f'GOES Clothing - Order Confirmation #{transaction.id}'
     
@@ -420,9 +421,6 @@ def send_order_confirmation_email(transaction):
     
     # Create a mapping of product ID to quantity
     product_quantities = {item.product.id: item.quantity for item in cart_items}
-    
-    # Create product list with quantities
-    product_list = '\n'.join([f"- {product.name} (Qty: {product_quantities.get(product.id, 1)}) - ₦{product.price}" for product in products])
     
     # Get the shipping address
     address = transaction.address
@@ -439,7 +437,7 @@ def send_order_confirmation_email(transaction):
         Total Amount: ₦{transaction.amount}
 
         Products:
-        {product_list}
+        {''.join([f"- {product.name} (Qty: {product_quantities.get(product.id, 1)}) - ₦{product.price}" for product in products])}
 
         Shipping Address:
         {address_text}
@@ -455,7 +453,6 @@ def send_order_confirmation_email(transaction):
             """
             
     # Create HTML content
-    # Using a combination of regular strings and f-strings to avoid backslash issues
     style_content = '''
     <html>
         <head>
@@ -482,8 +479,7 @@ def send_order_confirmation_email(transaction):
             </div>
     '''
             
-    # Combine the style with dynamic content using string formatting to avoid f-string backslash issues
-    # Create product list HTML without using f-strings in the list comprehension
+    # Create product list HTML
     product_items = []
     for product in products:
         # Get the quantity for this product
@@ -492,7 +488,7 @@ def send_order_confirmation_email(transaction):
         # Get the first image for the product if available
         product_image = ProductImage.objects.filter(product=product).first()
         image_url = ''
-        if product_image:
+        if product_image and product_image.image:
             image_url = product_image.image.url
             # Make sure the URL is absolute
             if not image_url.startswith('http'):
@@ -520,11 +516,9 @@ def send_order_confirmation_email(transaction):
     product_list_html = '\n'.join(product_items)
     
     # Create order note HTML if it exists
-    order_note_html = ''
-    if transaction.order_note:
-        order_note_html = f'<h3>Order Note:</h3><p>{transaction.order_note}</p>'
+    order_note_html = f'<h3>Order Note:</h3><p>{transaction.order_note}</p>' if transaction.order_note else ''
     
-    # Create the dynamic content without nested f-strings
+    # Create the dynamic content
     dynamic_content = (
         f"<h2>Order Confirmation #{transaction.id}</h2>\n"
         f"<p>Dear {transaction.user.first_name} {transaction.user.last_name},</p>\n"
@@ -572,7 +566,7 @@ def send_order_confirmation_email(transaction):
     except Exception as e:
         print(f"Failed to send order confirmation email: {str(e)}")
         return False
-
+        
 def thank_you(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
     categories = Category.objects.all()

@@ -28,6 +28,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
+
+# In send_order_confirmation_email
+
 # Application definition
 
 INSTALLED_APPS = [
