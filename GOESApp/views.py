@@ -696,10 +696,31 @@ def order_detail(request, transaction_id):
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart_count = cart.items.count()
 
+    # Get the cart items to access quantities
+    cart, created = Cart.objects.get_or_create(user=transaction.user)
+    cart_items = cart.items.all()
+    
+    # Create a mapping of product ID to quantity
+    product_quantities = {item.product.id: item.quantity for item in cart_items}
+    
+    # Get products and their first image
+    products_with_details = []
+    for product in transaction.products.all():
+        product_image = ProductImage.objects.filter(product=product).first()
+        image_url = product_image.image.url if product_image and product_image.image else ''
+        if image_url and not image_url.startswith('http'):
+            image_url = request.build_absolute_uri(image_url)
+        products_with_details.append({
+            'product': product,
+            'quantity': product_quantities.get(product.id, 1),  # Default to 1 if not found
+            'image_url': image_url
+        })
+
     context = {
         'transaction': transaction,
         'categories': categories,
         'cart_count': cart_count,
+        'products_with_details': products_with_details,
     }
     return render(request, 'GOESAPP/order_detail.html', context)
 
