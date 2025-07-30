@@ -425,7 +425,7 @@ def send_order_confirmation_email(transaction):
         Thank you for your purchase from GOES Clothing!
 
         Order Details:
-        Order Number: #{transaction.flw_transaction_id}
+        Order Confirmation
         Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
         Total Amount: ₦{transaction.amount}
 
@@ -454,15 +454,20 @@ def send_order_confirmation_email(transaction):
                 body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
                 h2 { color: #000; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
                 .order-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
-                .product-item { margin-bottom: 5px; }
+                .product-item { margin-bottom: 15px; display: flex; align-items: center; }
+                .product-image { width: 80px; height: 80px; margin-right: 15px; object-fit: cover; border-radius: 5px; }
+                .product-info { flex: 1; }
                 .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
                 .logo { text-align: center; margin-bottom: 20px; }
+                .logo img { max-width: 150px; height: auto; }
                 .button { display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
                 .button:hover { background-color: #333; }
+                .total-amount { font-size: 18px; font-weight: bold; color: #000; background-color: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center; margin: 15px 0; }
             </style>
         </head>
         <body>
             <div class="logo">
+                <img src="https://www.godoneveryside.com/static/images/LOGO[1].png" alt="GOES Clothing Logo">
                 <h1>GOES - God On Every Side</h1>
             </div>
     '''
@@ -471,7 +476,34 @@ def send_order_confirmation_email(transaction):
     # Create product list HTML without using f-strings in the list comprehension
     product_items = []
     for product in products:
-        product_items.append(f'<li class="product-item">{product.name} - ₦{product.price}</li>')
+        # Get the first image for the product if available
+        product_image = ProductImage.objects.filter(product=product).first()
+        image_url = ''
+        if product_image:
+            image_url = product_image.image.url
+            # Make sure the URL is absolute
+            if not image_url.startswith('http'):
+                image_url = request.build_absolute_uri(image_url)
+        
+        # Create product item HTML with image
+        if image_url:
+            product_items.append(f'''
+            <div class="product-item">
+                <img src="{image_url}" alt="{product.name}" class="product-image">
+                <div class="product-info">
+                    <strong>{product.name}</strong><br>
+                    ₦{product.price}
+                </div>
+            </div>''')
+        else:
+            product_items.append(f'''
+            <div class="product-item">
+                <div class="product-info">
+                    <strong>{product.name}</strong><br>
+                    ₦{product.price}
+                </div>
+            </div>''')
+    
     product_list_html = '\n'.join(product_items)
     
     # Create order note HTML if it exists
@@ -489,12 +521,10 @@ def send_order_confirmation_email(transaction):
         f"<h3>Order Details:</h3>\n"
         f"<p><strong>Order Number:</strong> #{transaction.flw_transaction_id}</p>\n"
         f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
-        f"<p><strong>Total Amount:</strong> ₦{transaction.amount}</p>\n\n"
+        f"<div class=\"total-amount\">Total Amount: ₦{transaction.amount}</div>\n\n"
         
         f"<h3>Products:</h3>\n"
-        f"<ul>\n"
-        f"{product_list_html}\n"
-        f"</ul>\n\n"
+        f"{product_list_html}\n\n"
         
         f"<h3>Shipping Address:</h3>\n"
         f"<p>{address_text}</p>\n\n"
