@@ -413,7 +413,16 @@ def send_order_confirmation_email(transaction):
     
     # Get the products associated with this transaction
     products = transaction.products.all()
-    product_list = '\n'.join([f"- {product.name} - ₦{product.price}" for product in products])
+    
+    # Get the cart items to access quantities
+    cart, created = Cart.objects.get_or_create(user=transaction.user)
+    cart_items = cart.items.all()
+    
+    # Create a mapping of product ID to quantity
+    product_quantities = {item.product.id: item.quantity for item in cart_items}
+    
+    # Create product list with quantities
+    product_list = '\n'.join([f"- {product.name} (Qty: {product_quantities.get(product.id, 1)}) - ₦{product.price}" for product in products])
     
     # Get the shipping address
     address = transaction.address
@@ -463,6 +472,7 @@ def send_order_confirmation_email(transaction):
                 .button { display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
                 .button:hover { background-color: #333; }
                 .total-amount { font-size: 18px; font-weight: bold; color: #000; background-color: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center; margin: 15px 0; }
+                .quantity { display: inline-block; background-color: #000; color: white; padding: 3px 8px; border-radius: 3px; margin-left: 5px; }
             </style>
         </head>
         <body>
@@ -476,6 +486,9 @@ def send_order_confirmation_email(transaction):
     # Create product list HTML without using f-strings in the list comprehension
     product_items = []
     for product in products:
+        # Get the quantity for this product
+        quantity = product_quantities.get(product.id, 1)
+        
         # Get the first image for the product if available
         product_image = ProductImage.objects.filter(product=product).first()
         image_url = ''
@@ -485,13 +498,13 @@ def send_order_confirmation_email(transaction):
             if not image_url.startswith('http'):
                 image_url = request.build_absolute_uri(image_url)
         
-        # Create product item HTML with image
+        # Create product item HTML with image and quantity
         if image_url:
             product_items.append(f'''
             <div class="product-item">
                 <img src="{image_url}" alt="{product.name}" class="product-image">
                 <div class="product-info">
-                    <strong>{product.name}</strong><br>
+                    <strong>{product.name}</strong> <span class="quantity">Qty: {quantity}</span><br>
                     ₦{product.price}
                 </div>
             </div>''')
@@ -499,7 +512,7 @@ def send_order_confirmation_email(transaction):
             product_items.append(f'''
             <div class="product-item">
                 <div class="product-info">
-                    <strong>{product.name}</strong><br>
+                    <strong>{product.name}</strong> <span class="quantity">Qty: {quantity}</span><br>
                     ₦{product.price}
                 </div>
             </div>''')
@@ -519,7 +532,7 @@ def send_order_confirmation_email(transaction):
         
         f"<div class=\"order-details\">\n"
         f"<h3>Order Details:</h3>\n"
-        f"<p><strong>Order Number:</strong> #{transaction.flw_transaction_id}</p>\n"
+        f"<p><strong>Order Confirmation:</strong> </p>\n"
         f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
         f"<div class=\"total-amount\">Total Amount: ₦{transaction.amount}</div>\n\n"
         
