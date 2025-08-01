@@ -433,7 +433,7 @@ def payment_callback(request):
     
 def send_order_confirmation_email(request, transaction):
     """Send order confirmation email to the customer"""
-    subject = f'GOES Clothing - Order Confirmation #{transaction.id}'
+    subject = f'GOES Clothing - Order Confirmation'
     
     # Get the order items associated with this transaction
     order_items = transaction.order_items.all()
@@ -448,7 +448,7 @@ def send_order_confirmation_email(request, transaction):
         Thank you for your purchase from GOES Clothing!
 
         Order Details:
-        Order Confirmation #{transaction.id}
+        Order Confirmation 
         Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
         Total Amount: ₦{transaction.amount}
 
