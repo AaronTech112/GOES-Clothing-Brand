@@ -686,7 +686,6 @@ def remove_from_cart(request, item_id):
     messages.success(request, f"{cart_item.product.name} removed from cart!")
     return redirect('cart')
 
-# views.py
 @login_required(login_url='/login_user')
 def order_detail(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
@@ -696,24 +695,37 @@ def order_detail(request, transaction_id):
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart_count = cart.items.count()
 
-    # Get the cart items to access quantities
-    cart, created = Cart.objects.get_or_create(user=transaction.user)
-    cart_items = cart.items.all()
+    # Get order items
+    order_items = transaction.order_items.all()
     
-    # Create a mapping of product ID to quantity
-    product_quantities = {item.product.id: item.quantity for item in cart_items}
+    # Create product list HTML
+    product_list_html = ''
+    for item in order_items:
+        product_image = ProductImage.objects.filter(product=item.product).first()
+        image_url = request.build_absolute_uri(product_image.image.url) if product_image and product_image.image else ''
+        product_list_html += f'''
+        <div class="product-item">
+            <img src="{image_url}" alt="{item.product.name}" class="product-image">
+            <div class="product-info">
+                <strong>{item.product.name}</strong> <span class="quantity">Qty: {item.quantity}</span><br>
+                ₦{item.price}
+            </div>
+        </div>
+        '''
     
-    # Get products and their first image
+    # Get products with details
     products_with_details = []
-    for product in transaction.products.all():
-        product_image = ProductImage.objects.filter(product=product).first()
+    for item in order_items:
+        product_image = ProductImage.objects.filter(product=item.product).first()
         image_url = product_image.image.url if product_image and product_image.image else ''
         if image_url and not image_url.startswith('http'):
             image_url = request.build_absolute_uri(image_url)
         products_with_details.append({
-            'product': product,
-            'quantity': product_quantities.get(product.id, 1),  # Default to 1 if not found
-            'image_url': image_url
+            'product': item.product,
+            'quantity': item.quantity,
+            'image_url': image_url,
+            'size': item.size.name if item.size else '',
+            'color': item.color.name if item.color else '',
         })
 
     context = {

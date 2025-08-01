@@ -188,7 +188,9 @@
               <img src="{{ item.image_url }}" alt="{{ item.product.name }}" class="product-image">
             {% endif %}
             <div class="product-info">
-              <strong>{{ item.product.name }}</strong> <span class="quantity">Qty: {{ transaction.item.quantity }}</span><br>
+              <strong>{{ item.product.name }}</strong> <span class="quantity">Qty: {{ item.quantity }}</span><br>
+              {% if item.size %}Size: {{ item.size }} | {% endif %}
+              {% if item.color %}Color: {{ item.color }}{% endif %}<br>
               ₦{{ item.product.price }}
             </div>
           </div>

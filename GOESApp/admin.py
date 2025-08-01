@@ -16,6 +16,7 @@ from .models import (
     Size,
     ProductImage,
     HomePageImages,
+    OrderItem,
 )
 
 @admin.register(CustomUser)
@@ -114,3 +115,9 @@ class ColorAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     
 admin.site.register(HomePageImages)
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('transaction', 'product', 'quantity', 'price')
+    list_filter = ('transaction__transaction_status',)
+    search_fields = ('transaction__tx_ref', 'product__name')
