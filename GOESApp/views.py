@@ -490,7 +490,7 @@ def send_order_confirmation_email(request, transaction):
         </head>
         <body>
             <div class="logo">
-                <img src="https://www.godoneveryside.com/static/images/LOGO[1].png" alt="GOES Clothing Logo">
+                <img src="https://www.godoneveryside.com/static/images/LOGO_20_TRANS[1].png" alt="GOES Clothing Logo">
                 <h1>GOES - God On Every Side</h1>
             </div>
     '''
