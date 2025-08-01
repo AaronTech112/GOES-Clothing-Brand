@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm , CheckoutForm, AddressForm, NewsletterForm
 from django.contrib import messages
-from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages, CustomUser
+from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages, CustomUser, OrderItem
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
