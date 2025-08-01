@@ -191,7 +191,7 @@
               <strong>{{ item.product.name }}</strong> <span class="quantity">Qty: {{ item.quantity }}</span><br>
               {% if item.size %}Size: {{ item.size }} | {% endif %}
               {% if item.color %}Color: {{ item.color }}{% endif %}<br>
-              ₦{{ item.product.price }}
+              ₦{{ item.price }} <!-- Use item.price instead of item.product.price -->
             </div>
           </div>
         {% empty %}

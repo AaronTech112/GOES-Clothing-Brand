@@ -301,6 +301,7 @@ from django.views.decorators.http import require_http_methods
 
 # views.py
 @csrf_exempt
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def payment_callback(request):
     if request.method == "POST":
@@ -328,11 +329,22 @@ def payment_callback(request):
                     transaction.save()
                     cart, created = Cart.objects.get_or_create(user=transaction.user)
                     cart_items = cart.items.all()
+                    
+                    # Create OrderItem objects for each CartItem
                     for cart_item in cart_items:
                         product = cart_item.product
                         if product.in_stock >= cart_item.quantity:
                             product.in_stock -= cart_item.quantity
                             product.save()
+                            # Create an OrderItem for this cart item
+                            OrderItem.objects.create(
+                                transaction=transaction,
+                                product=product,
+                                quantity=cart_item.quantity,
+                                size=cart_item.size,
+                                color=cart_item.color,
+                                price=product.price  # Store the price at the time of purchase
+                            )
                         else:
                             transaction.transaction_status = 'declined'
                             transaction.save()
@@ -368,11 +380,22 @@ def payment_callback(request):
                     transaction.save()
                     cart, created = Cart.objects.get_or_create(user=transaction.user)
                     cart_items = cart.items.all()
+                    
+                    # Create OrderItem objects for each CartItem
                     for cart_item in cart_items:
                         product = cart_item.product
                         if product.in_stock >= cart_item.quantity:
                             product.in_stock -= cart_item.quantity
                             product.save()
+                            # Create an OrderItem for this cart item
+                            OrderItem.objects.create(
+                                transaction=transaction,
+                                product=product,
+                                quantity=cart_item.quantity,
+                                size=cart_item.size,
+                                color=cart_item.color,
+                                price=product.price  # Store the price at the time of purchase
+                            )
                         else:
                             transaction.transaction_status = 'declined'
                             transaction.save()
@@ -410,17 +433,10 @@ def payment_callback(request):
     
 def send_order_confirmation_email(request, transaction):
     """Send order confirmation email to the customer"""
-    subject = f'GOES Clothing - Order Confirmation '
+    subject = f'GOES Clothing - Order Confirmation #{transaction.id}'
     
-    # Get the products associated with this transaction
-    products = transaction.products.all()
-    
-    # Get the cart items to access quantities
-    cart, created = Cart.objects.get_or_create(user=transaction.user)
-    cart_items = cart.items.all()
-    
-    # Create a mapping of product ID to quantity
-    product_quantities = {item.product.id: item.quantity for item in cart_items}
+    # Get the order items associated with this transaction
+    order_items = transaction.order_items.all()
     
     # Get the shipping address
     address = transaction.address
@@ -432,12 +448,12 @@ def send_order_confirmation_email(request, transaction):
         Thank you for your purchase from GOES Clothing!
 
         Order Details:
-        Order Confirmation
+        Order Confirmation #{transaction.id}
         Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
         Total Amount: ₦{transaction.amount}
 
         Products:
-        {''.join([f"- {product.name} (Qty: {product_quantities.get(product.id, 1)}) - ₦{product.price}" for product in products])}
+        {''.join([f"- {item.product.name} (Qty: {item.quantity}) - ₦{item.price}" for item in order_items])}
 
         Shipping Address:
         {address_text}
@@ -450,8 +466,8 @@ def send_order_confirmation_email(request, transaction):
 
         GOES Clothing Team
         God On Every Side
-            """
-            
+    """
+    
     # Create HTML content
     style_content = '''
     <html>
@@ -478,40 +494,31 @@ def send_order_confirmation_email(request, transaction):
                 <h1>GOES - God On Every Side</h1>
             </div>
     '''
-            
+    
     # Create product list HTML
     product_items = []
-    for product in products:
-        # Get the quantity for this product
-        quantity = product_quantities.get(product.id, 1)
-        
+    for item in order_items:
         # Get the first image for the product if available
-        product_image = ProductImage.objects.filter(product=product).first()
+        product_image = ProductImage.objects.filter(product=item.product).first()
         image_url = ''
         if product_image and product_image.image:
             image_url = product_image.image.url
-            # Make sure the URL is absolute
             if not image_url.startswith('http'):
                 image_url = request.build_absolute_uri(image_url)
         
         # Create product item HTML with image and quantity
-        if image_url:
-            product_items.append(f'''
-            <div class="product-item">
-                <img src="{image_url}" alt="{product.name}" class="product-image">
-                <div class="product-info">
-                    <strong>{product.name}</strong> <span class="quantity">Qty: {quantity}</span><br>
-                    ₦{product.price}
-                </div>
-            </div>''')
-        else:
-            product_items.append(f'''
-            <div class="product-item">
-                <div class="product-info">
-                    <strong>{product.name}</strong> <span class="quantity">Qty: {quantity}</span><br>
-                    ₦{product.price}
-                </div>
-            </div>''')
+        size_text = f"Size: {item.size.name} | " if item.size else ""
+        color_text = f"Color: {item.color.name} | " if item.color else ""
+        
+        product_items.append(f"""
+        <div class="product-item">
+            <img src="{image_url}" alt="{item.product.name}" class="product-image">
+            <div class="product-info">
+                <strong>{item.product.name}</strong> <span class="quantity">Qty: {item.quantity}</span><br>
+                {size_text}{color_text}₦{item.price}
+            </div>
+        </div>""")
+    
     
     product_list_html = '\n'.join(product_items)
     
@@ -526,7 +533,7 @@ def send_order_confirmation_email(request, transaction):
         
         f"<div class=\"order-details\">\n"
         f"<h3>Order Details:</h3>\n"
-        f"<p><strong>Order Confirmation</strong> </p>\n"
+        f"<p><strong>Order Confirmation</strong> #{transaction.id}</p>\n"
         f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
         f"<div class=\"total-amount\">Total Amount: ₦{transaction.amount}</div>\n\n"
         
@@ -566,7 +573,7 @@ def send_order_confirmation_email(request, transaction):
     except Exception as e:
         print(f"Failed to send order confirmation email: {str(e)}")
         return False
-        
+            
 def thank_you(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
     categories = Category.objects.all()
@@ -698,34 +705,18 @@ def order_detail(request, transaction_id):
     # Get order items
     order_items = transaction.order_items.all()
     
-    # Create product list HTML
-    product_list_html = ''
-    for item in order_items:
-        product_image = ProductImage.objects.filter(product=item.product).first()
-        image_url = request.build_absolute_uri(product_image.image.url) if product_image and product_image.image else ''
-        product_list_html += f'''
-        <div class="product-item">
-            <img src="{image_url}" alt="{item.product.name}" class="product-image">
-            <div class="product-info">
-                <strong>{item.product.name}</strong> <span class="quantity">Qty: {item.quantity}</span><br>
-                ₦{item.price}
-            </div>
-        </div>
-        '''
-    
-    # Get products with details
+    # Create product list with details
     products_with_details = []
     for item in order_items:
         product_image = ProductImage.objects.filter(product=item.product).first()
-        image_url = product_image.image.url if product_image and product_image.image else ''
-        if image_url and not image_url.startswith('http'):
-            image_url = request.build_absolute_uri(image_url)
+        image_url = request.build_absolute_uri(product_image.image.url) if product_image and product_image.image else ''
         products_with_details.append({
             'product': item.product,
             'quantity': item.quantity,
             'image_url': image_url,
             'size': item.size.name if item.size else '',
             'color': item.color.name if item.color else '',
+            'price': item.price,  # Use the price stored in OrderItem
         })
 
     context = {
