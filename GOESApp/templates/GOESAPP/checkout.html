@@ -484,12 +484,14 @@
       const selectedCountry = countrySelect.value;
       let currentStateValue = '';
 
-      // Get the current state value to preserve it
-      if (stateInputField && stateInputField.style.display !== 'none') {
-        currentStateValue = stateInputField.value.trim();
-      } else if (originalStateField && originalStateField.style.display !== 'none') {
-        currentStateValue = originalStateField.value.trim();
-      }
+      // Get the current state value to preserve it only for Nigeria
+      if (selectedCountry === 'Nigeria') {
+        if (stateInputField && stateInputField.style.display !== 'none') {
+          currentStateValue = stateInputField.value.trim();
+        } else if (originalStateField && originalStateField.style.display !== 'none') {
+          currentStateValue = originalStateField.value.trim();
+        }
+      } // Note: We don't preserve the state value for non-Nigeria countries to clear the input
 
       if (selectedCountry === 'Nigeria') {
         // Show the dropdown for Nigeria
@@ -523,9 +525,7 @@
           stateInputField.className = 'form-control';
           stateInputField.placeholder = 'Enter state/province/region';
           stateInputField.required = originalStateField.required;
-
-          // Set the preserved state value
-          stateInputField.value = currentStateValue;
+          stateInputField.value = ''; // Clear the value to show placeholder
 
           // Add event listener to update shipping when state changes
           stateInputField.addEventListener('input', updateShippingFee);
@@ -533,8 +533,8 @@
           // Insert the text input after the hidden dropdown
           originalStateField.insertAdjacentElement('afterend', stateInputField);
         } else {
-          // Update the existing text input with the preserved value
-          stateInputField.value = currentStateValue;
+          // Clear the existing text input to show placeholder
+          stateInputField.value = '';
         }
       }
 
