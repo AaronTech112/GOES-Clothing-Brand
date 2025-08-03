@@ -527,13 +527,13 @@ def send_order_confirmation_email(request, transaction):
     
     # Create the dynamic content
     dynamic_content = (
-        f"<h2>Order Confirmation #{transaction.id}</h2>\n"
+        f"<h2>Order Confirmation</h2>\n"
         f"<p>Dear {transaction.user.first_name} {transaction.user.last_name},</p>\n"
         f"<p>Thank you for your purchase from GOES Clothing!</p>\n\n"
         
         f"<div class=\"order-details\">\n"
         f"<h3>Order Details:</h3>\n"
-        f"<p><strong>Order Confirmation</strong> #{transaction.id}</p>\n"
+        f"<p><strong>Order Confirmation</strong> </p>\n"
         f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
         f"<div class=\"total-amount\">Total Amount: ₦{transaction.amount}</div>\n\n"
         
