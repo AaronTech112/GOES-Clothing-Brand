@@ -1,7 +1,8 @@
 # forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Address, Newsletter
+from .models import CustomUser, Address, Newsletter, DiscountCode
+from django.utils import timezone
 
 # Common choices lists
 NIGERIAN_STATES = [
@@ -245,10 +246,10 @@ COUNTRIES = [
 
 class RegisterForm(UserCreationForm):
     street      = forms.CharField(max_length=255, required=False)
-    city        = forms.CharField(max_length=100, required=True)
+    city        = forms.CharField(max_length=100, required=False)
     state       = forms.CharField(required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     postal_code = forms.CharField(max_length=20,  required=True)
-    country     = forms.ChoiceField(choices=COUNTRIES, required=True, widget=forms.Select(attrs={'class': 'form-control'}))
+    country     = forms.ChoiceField(choices=COUNTRIES, required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -290,7 +291,7 @@ class ProfileForm(forms.ModelForm):
         
 class CheckoutForm(forms.ModelForm):
     state = forms.CharField(
-        required=True,
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
     discount_code = forms.CharField(max_length=20, required=False, label="Discount Code", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter discount code'}))
@@ -301,7 +302,7 @@ class CheckoutForm(forms.ModelForm):
     
     country = forms.ChoiceField(
         choices=COUNTRIES,
-        required=True,
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     
@@ -340,7 +341,7 @@ class AddressForm(forms.ModelForm):
     
     country = forms.ChoiceField(
         choices=COUNTRIES,
-        required=True,
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     
