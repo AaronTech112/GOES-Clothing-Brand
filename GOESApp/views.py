@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm , CheckoutForm, AddressForm, NewsletterForm
 from django.contrib import messages
-from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages, CustomUser, OrderItem
+from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages, CustomUser, OrderItem, DiscountCode
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
@@ -172,10 +172,13 @@ def checkout(request):
     cart = None
     cart_items = []
     total_price = 0
-    shipping_fee = 2000  # Default shipping fee for Abuja in NGN
+    shipping_fee = 2000  # Default shipping fee for Abuja
     subtotal = 0
     address = None
     has_address = False
+    discount_code = None
+    discount_amount = 0
+    applied_discount = False
 
     try:
         cart = Cart.objects.get(user=request.user)
@@ -191,20 +194,19 @@ def checkout(request):
             address.phone_number
         ])
         
-        # Calculate shipping fee based on address if available
+        # Calculate shipping fee based on address
         if has_address:
             country = address.country.lower() if address.country else ''
             state = address.state.lower() if address.state else ''
-            
             if country == 'nigeria':
-                if state == 'abuja' or state == 'federal capital territory' or state == 'fct':
+                if state in ['abuja', 'federal capital territory', 'fct']:
                     shipping_fee = 2000  # Abuja/FCT shipping fee
                 else:
-                    shipping_fee = 5000  # Other Nigerian states shipping fee
+                    shipping_fee = 5000  # Other Nigerian states
+                total_price = subtotal + shipping_fee
             else:
                 shipping_fee = 15000  # International shipping fee
-        
-        total_price = subtotal + shipping_fee
+                total_price = subtotal + shipping_fee
         
     except Cart.DoesNotExist:
         messages.error(request, "Your cart is empty.")
@@ -216,24 +218,64 @@ def checkout(request):
 
     if request.method == 'POST':
         if 'proceed_to_pay' in request.POST:
-            if not has_address:
+            form = CheckoutForm(request.POST, instance=address)
+            if not has_address and not form.is_valid():
                 messages.error(request, "Please save a valid delivery address before proceeding to payment.")
                 return redirect('checkout')
-            # Create a transaction before redirecting to Flutterwave
-            tx_ref = f"txn-{uuid.uuid4().hex[:10]}"  # Generate unique transaction reference
-            order_note = request.POST.get('order_note', '')
-            transaction = Transaction.objects.create(
-                user=request.user,
-                amount=total_price,
-                tx_ref=tx_ref,
-                address=address,
-                order_note=order_note,
-                transaction_status='pending'
-            )
-            # Add products to the transaction
-            transaction.products.set([item.product for item in cart_items])
-            transaction.save()
-            return redirect('initiate_payment', transaction_id=transaction.id)
+            
+            if form.is_valid():
+                # Apply discount if valid
+                discount_code = form.cleaned_data.get('discount_code')
+                if discount_code and subtotal >= 200000:
+                    try:
+                        discount = DiscountCode.objects.get(code=discount_code, is_used=False, expires_at__gt=timezone.now())
+                        discount_amount = subtotal * (discount.discount_percentage / 100)
+                        total_price = subtotal - discount_amount + shipping_fee
+                        applied_discount = True
+                    except DiscountCode.DoesNotExist:
+                        messages.error(request, "Invalid or expired discount code.")
+                        return redirect('checkout')
+                
+                # Save address if provided
+                address = form.save()
+                if not request.user.address:
+                    request.user.address = address
+                    request.user.save()
+                
+                # Recalculate shipping fee based on new address
+                country = form.cleaned_data.get('country', '').lower()
+                state = form.cleaned_data.get('state', '').lower()
+                if country == 'nigeria':
+                    if state in ['abuja', 'federal capital territory', 'fct']:
+                        shipping_fee = 2000
+                    else:
+                        shipping_fee = 5000
+                else:
+                    shipping_fee = 15000
+                total_price = (subtotal - discount_amount) + shipping_fee
+                
+                # Create transaction
+                tx_ref = f"txn-{uuid.uuid4().hex[:10]}"
+                order_note = request.POST.get('order_note', '')
+                transaction = Transaction.objects.create(
+                    user=request.user,
+                    amount=total_price,
+                    tx_ref=tx_ref,
+                    address=address,
+                    order_note=order_note,
+                    transaction_status='pending'
+                )
+                # Add products to the transaction
+                transaction.products.set([item.product for item in cart_items])
+                # Store discount code if applied
+                if discount_code and applied_discount:
+                    transaction.discount_code = DiscountCode.objects.get(code=discount_code)
+                    transaction.discount_code.is_used = True
+                    transaction.discount_code.save()
+                transaction.save()
+                return redirect('initiate_payment', transaction_id=transaction.id)
+            else:
+                messages.error(request, "Please correct the errors in the form.")
         else:
             # Handle address form submission
             form = CheckoutForm(request.POST, instance=address)
@@ -246,14 +288,13 @@ def checkout(request):
                 # Recalculate shipping fee based on new address
                 country = form.cleaned_data.get('country', '').lower()
                 state = form.cleaned_data.get('state', '').lower()
-                
                 if country == 'nigeria':
-                    if state == 'abuja' or state == 'federal capital territory' or state == 'fct':
-                        shipping_fee = 2000  # Abuja/FCT shipping fee
+                    if state in ['abuja', 'federal capital territory', 'fct']:
+                        shipping_fee = 2000
                     else:
-                        shipping_fee = 5000  # Other Nigerian states shipping fee
+                        shipping_fee = 5000
                 else:
-                    shipping_fee = 15000  # International shipping fee
+                    shipping_fee = 15000
                 
                 total_price = subtotal + shipping_fee
                 
@@ -273,6 +314,8 @@ def checkout(request):
         'form': form,
         'categories': categories,
         'has_address': has_address,
+        'discount_amount': discount_amount,
+        'applied_discount': applied_discount,
     }
     return render(request, 'GOESAPP/checkout.html', context)
 
@@ -432,73 +475,88 @@ def payment_callback(request):
         return redirect('cart')
     
 def send_order_confirmation_email(request, transaction):
-    """Send order confirmation email to the customer"""
     subject = f'GOES Clothing - Order Confirmation'
-    
-    # Get the order items associated with this transaction
     order_items = transaction.order_items.all()
-    
-    # Get the shipping address
     address = transaction.address
     address_text = f"{address.street}, {address.city}, {address.state}, {address.postal_code}, {address.country}"
     
-    # Create text content
+    # Calculate subtotal
+    subtotal = sum(item.total_price() for item in order_items)
+    # Calculate shipping fee
+    shipping_fee = 2000
+    if address:
+        country = address.country.lower() if address.country else ''
+        state = address.state.lower() if address.state else ''
+        if country == 'nigeria':
+            if state in ['abuja', 'federal capital territory', 'fct']:
+                shipping_fee = 2000
+            else:
+                shipping_fee = 5000
+        else:
+            shipping_fee = 15000
+    
+    # Calculate discount if applied
+    discount_amount = 0
+    discount_code_text = ''
+    if transaction.discount_code:
+        discount_amount = subtotal * (transaction.discount_code.discount_percentage / 100)
+        discount_code_text = f"Discount Code Applied ({transaction.discount_code.code}): -₦{discount_amount}\n"
+
     text_content = f"""Dear {transaction.user.first_name} {transaction.user.last_name},
 
-        Thank you for your purchase from GOES Clothing!
+Thank you for your purchase from GOES Clothing!
 
-        Order Details:
-        Order Confirmation 
-        Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
-        Total Amount: ₦{transaction.amount}
+Order Details:
+Order Confirmation 
+Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
+Subtotal: ₦{subtotal}
+{discount_code_text}Shipping Fee: ₦{shipping_fee}
+Total Amount: ₦{transaction.amount}
 
-        Products:
-        {''.join([f"- {item.product.name} (Qty: {item.quantity}) - ₦{item.price}" for item in order_items])}
+Products:
+{''.join([f"- {item.product.name} (Qty: {item.quantity}) - ₦{item.price}" for item in order_items])}
 
-        Shipping Address:
-        {address_text}
+Shipping Address:
+{address_text}
 
-        {'Order Note: ' + transaction.order_note if transaction.order_note else ''}
+{'Order Note: ' + transaction.order_note if transaction.order_note else ''}
 
-        Your order is being processed and will be shipped soon.
+Your order is being processed and will be shipped soon.
 
-        Thank you for shopping with us!
+Thank you for shopping with us!
 
-        GOES Clothing Team
-        God On Every Side
-    """
+GOES Clothing Team
+God On Every Side
+"""
     
-    # Create HTML content
     style_content = '''
-    <html>
-        <head>
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-                h2 { color: #000; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-                .order-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
-                .product-item { margin-bottom: 15px; display: flex; align-items: center; }
-                .product-image { width: 80px; height: 80px; margin-right: 15px; object-fit: cover; border-radius: 5px; }
-                .product-info { flex: 1; }
-                .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
-                .logo { text-align: center; margin-bottom: 20px; }
-                .logo img { max-width: 150px; height: auto; }
-                .button { display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
-                .button:hover { background-color: #333; }
-                .total-amount { font-size: 18px; font-weight: bold; color: #000; background-color: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center; margin: 15px 0; }
-                .quantity { display: inline-block; background-color: #000; color: white; padding: 3px 8px; border-radius: 3px; margin-left: 5px; }
-            </style>
-        </head>
-        <body>
-            <div class="logo">
-                <img src="https://www.godoneveryside.com/static/images/LOGO_20_TRANS[1].png" alt="GOES Clothing Logo">
-                <h1>GOES - God On Every Side</h1>
-            </div>
-    '''
+<html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+            h2 { color: #000; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+            .order-details { background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            .product-item { margin-bottom: 15px; display: flex; align-items: center; }
+            .product-image { width: 80px; height: 80px; margin-right: 15px; object-fit: cover; border-radius: 5px; }
+            .product-info { flex: 1; }
+            .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }
+            .logo { text-align: center; margin-bottom: 20px; }
+            .logo img { max-width: 150px; height: auto; }
+            .button { display: inline-block; background-color: #000; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+            .button:hover { background-color: #333; }
+            .total-amount { font-size: 18px; font-weight: bold; color: #000; background-color: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center; margin: 15px 0; }
+            .quantity { display: inline-block; background-color: #000; color: white; padding: 3px 8px; border-radius: 3px; margin-left: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="logo">
+            <img src="https://www.godoneveryside.com/static/images/LOGO_20_TRANS[1].png" alt="GOES Clothing Logo">
+            <h1>GOES - God On Every Side</h1>
+        </div>
+'''
     
-    # Create product list HTML
     product_items = []
     for item in order_items:
-        # Get the first image for the product if available
         product_image = ProductImage.objects.filter(product=item.product).first()
         image_url = ''
         if product_image and product_image.image:
@@ -506,7 +564,6 @@ def send_order_confirmation_email(request, transaction):
             if not image_url.startswith('http'):
                 image_url = request.build_absolute_uri(image_url)
         
-        # Create product item HTML with image and quantity
         size_text = f"Size: {item.size.name} | " if item.size else ""
         color_text = f"Color: {item.color.name} | " if item.color else ""
         
@@ -519,13 +576,10 @@ def send_order_confirmation_email(request, transaction):
             </div>
         </div>""")
     
-    
     product_list_html = '\n'.join(product_items)
-    
-    # Create order note HTML if it exists
     order_note_html = f'<h3>Order Note:</h3><p>{transaction.order_note}</p>' if transaction.order_note else ''
+    discount_html = f'<p><strong>Discount ({transaction.discount_code.code}):</strong> -₦{discount_amount}</p>' if transaction.discount_code else ''
     
-    # Create the dynamic content
     dynamic_content = (
         f"<h2>Order Confirmation</h2>\n"
         f"<p>Dear {transaction.user.first_name} {transaction.user.last_name},</p>\n"
@@ -535,6 +589,9 @@ def send_order_confirmation_email(request, transaction):
         f"<h3>Order Details:</h3>\n"
         f"<p><strong>Order Confirmation</strong> </p>\n"
         f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
+        f"<p><strong>Subtotal:</strong> ₦{subtotal}</p>\n"
+        f"{discount_html}\n"
+        f"<p><strong>Shipping Fee:</strong> ₦{shipping_fee}</p>\n"
         f"<div class=\"total-amount\">Total Amount: ₦{transaction.amount}</div>\n\n"
         
         f"<h3>Products:</h3>\n"
@@ -573,7 +630,7 @@ def send_order_confirmation_email(request, transaction):
     except Exception as e:
         print(f"Failed to send order confirmation email: {str(e)}")
         return False
-            
+                
 def thank_you(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
     categories = Category.objects.all()
@@ -705,6 +762,23 @@ def order_detail(request, transaction_id):
     # Get order items
     order_items = transaction.order_items.all()
     
+    # Calculate shipping fee based on address
+    shipping_fee = 2000  # Default shipping fee for Abuja
+    address = transaction.address
+    if address:
+        country = address.country.lower() if address.country else ''
+        state = address.state.lower() if address.state else ''
+        if country == 'nigeria':
+            if state in ['abuja', 'federal capital territory', 'fct']:
+                shipping_fee = 2000  # Abuja/FCT shipping fee
+            else:
+                shipping_fee = 5000  # Other Nigerian states
+        else:
+            shipping_fee = 15000  # International shipping fee
+    
+    # Calculate subtotal
+    subtotal = sum(item.total_price() for item in order_items)
+    
     # Create product list with details
     products_with_details = []
     for item in order_items:
@@ -724,6 +798,9 @@ def order_detail(request, transaction_id):
         'categories': categories,
         'cart_count': cart_count,
         'products_with_details': products_with_details,
+        'subtotal': subtotal,
+        'shipping_fee': shipping_fee,
+        'total_amount': transaction.amount,  # Already includes shipping
     }
     return render(request, 'GOESAPP/order_detail.html', context)
 
@@ -965,4 +1042,57 @@ def policies(request):
     }
     return render(request, 'GOESAPP/policies.html', context)
 
+import uuid
+from django.utils import timezone
+from datetime import timedelta
 
+@require_POST
+def generate_discount_code(request):
+    email = request.POST.get('email')
+    if not email:
+        return JsonResponse({'success': False, 'error': 'Email is required.'})
+
+    # Check if email is already subscribed
+    newsletter, created = Newsletter.objects.get_or_create(email=email)
+    
+    # Check if a valid discount code already exists for this email
+    existing_code = DiscountCode.objects.filter(email=newsletter, is_used=False, expires_at__gt=timezone.now()).first()
+    if existing_code:
+        return JsonResponse({'success': True, 'code': existing_code.code})
+
+    # Generate a unique discount code
+    code = f"GOES5-{uuid.uuid4().hex[:8]}".upper()
+    expires_at = timezone.now() + timedelta(days=30)  # Code valid for 30 days
+
+    # Create new discount code
+    discount_code = DiscountCode.objects.create(
+        email=newsletter,
+        code=code,
+        discount_percentage=5.00,
+        expires_at=expires_at
+    )
+
+    return JsonResponse({'success': True, 'code': discount_code.code})
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import DiscountCode
+from django.utils import timezone
+
+@require_POST
+def validate_discount_code(request):
+    code = request.POST.get('discount_code')
+    subtotal = float(request.POST.get('subtotal', 0))
+    if not code or subtotal < 200000:
+        return JsonResponse({'success': False, 'error': 'Invalid code or subtotal less than ₦200,000.'})
+    
+    try:
+        discount = DiscountCode.objects.get(code=code, is_used=False, expires_at__gt=timezone.now())
+        discount_amount = subtotal * (float(discount.discount_percentage) / 100)  # Convert Decimal to float
+        return JsonResponse({
+            'success': True,
+            'discount_amount': discount_amount,
+            'total_price': subtotal - discount_amount  # Note: Shipping fee added server-side
+        })
+    except DiscountCode.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Invalid or expired discount code.'})

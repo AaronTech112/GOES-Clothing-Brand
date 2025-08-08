@@ -117,9 +117,6 @@
       </button>
       <div class="collapse navbar-collapse" id="navMenu">
         <ul class="navbar-nav mx-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'shop' %}">Look book</a>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="collectionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Shop
@@ -132,6 +129,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'our_story' %}">Our Story</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'shop' %}">Look book</a>
           </li>
         </ul>
         <ul class="navbar-nav ms-auto align-items-center">
@@ -177,40 +177,42 @@
   <div class="container my-5">
     <h2 class="section-title text-center">Order Details</h2>
 
-    <div class="order-detail-card">
-      <h5>Order #{{ transaction.tx_ref }}</h5>
-      <p><strong>Date:</strong> {{ transaction.transaction_date|date:"F d, Y" }}</p>
-      <p><strong>Items:</strong></p>
-      <div>
-        {% for item in products_with_details %}
-          <div class="product-item">
-            {% if item.image_url %}
-              <img src="{{ item.image_url }}" alt="{{ item.product.name }}" class="product-image">
-            {% endif %}
-            <div class="product-info">
-              <strong>{{ item.product.name }}</strong> <span class="quantity">Qty: {{ item.quantity }}</span><br>
-              {% if item.size %}Size: {{ item.size }} | {% endif %}
-              {% if item.color %}Color: {{ item.color }}{% endif %}<br>
-              ₦{{ item.price }} <!-- Use item.price instead of item.product.price -->
-            </div>
-          </div>
-        {% empty %}
-          <p>No items found for this order.</p>
-        {% endfor %}
+<div class="order-detail-card">
+  <h5>Order #{{ transaction.tx_ref }}</h5>
+  <p><strong>Date:</strong> {{ transaction.transaction_date|date:"F d, Y" }}</p>
+  <p><strong>Items:</strong></p>
+  <div>
+    {% for item in products_with_details %}
+      <div class="product-item">
+        {% if item.image_url %}
+          <img src="{{ item.image_url }}" alt="{{ item.product.name }}" class="product-image">
+        {% endif %}
+        <div class="product-info">
+          <strong>{{ item.product.name }}</strong> <span class="quantity">Qty: {{ item.quantity }}</span><br>
+          {% if item.size %}Size: {{ item.size }} | {% endif %}
+          {% if item.color %}Color: {{ item.color }}{% endif %}<br>
+          ₦{{ item.price }}
+        </div>
       </div>
-      <p><strong>Total Amount:</strong> ₦{{ transaction.amount }}</p>
-      <p><strong>Status:</strong> {{ transaction.transaction_status|capfirst }}</p>
-      <p><strong>Shipping Address:</strong><br>
-        {{ transaction.address.street|default_if_none:"" }}<br>
-        {{ transaction.address.city|default_if_none:"" }}, {{ transaction.address.country|default_if_none:"" }}<br>
-        Phone: {{ transaction.address.phone_number|default_if_none:"Not provided" }}
-      </p>
-      {% if transaction.order_note %}
-        <p><strong>Order Note:</strong><br>
-        {{ transaction.order_note }}</p>
-      {% endif %}
-      <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm">Back to Orders</a>
-    </div>
+    {% empty %}
+      <p>No items found for this order.</p>
+    {% endfor %}
+  </div>
+  <p><strong>Subtotal:</strong> ₦{{ subtotal }}</p>
+  <p><strong>Shipping Fee:</strong> ₦{{ shipping_fee }}</p>
+  <p><strong>Total Amount:</strong> ₦{{ total_amount }}</p>
+  <p><strong>Status:</strong> {{ transaction.transaction_status|capfirst }}</p>
+  <p><strong>Shipping Address:</strong><br>
+    {{ transaction.address.street|default_if_none:"" }}<br>
+    {{ transaction.address.city|default_if_none:"" }}, {{ transaction.address.country|default_if_none:"" }}<br>
+    Phone: {{ transaction.address.phone_number|default_if_none:"Not provided" }}
+  </p>
+  {% if transaction.order_note %}
+    <p><strong>Order Note:</strong><br>
+    {{ transaction.order_note }}</p>
+  {% endif %}
+  <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm">Back to Orders</a>
+</div>
   </div>
 
   <!-- Footer -->

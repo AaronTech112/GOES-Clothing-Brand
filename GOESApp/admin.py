@@ -16,7 +16,8 @@ from .models import (
     Size,
     ProductImage,
     HomePageImages,
-    OrderItem,
+    DiscountCode,
+    OrderItem
 )
 
 @admin.register(CustomUser)
@@ -115,6 +116,8 @@ class ColorAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     
 admin.site.register(HomePageImages)
+
+admin.site.register(DiscountCode)
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):

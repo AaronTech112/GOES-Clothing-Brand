@@ -292,12 +292,11 @@ class CheckoutForm(forms.ModelForm):
     state = forms.CharField(
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'}),
-        # Using CharField instead of ChoiceField allows us to accept both dropdown selections and text input
     )
+    discount_code = forms.CharField(max_length=20, required=False, label="Discount Code", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter discount code'}))
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Set the choices for the state field
         self.fields['state'].widget.choices = NIGERIAN_STATES
     
     country = forms.ChoiceField(
@@ -308,7 +307,7 @@ class CheckoutForm(forms.ModelForm):
     
     class Meta:
         model = Address
-        fields = ['full_name', 'street', 'city', 'state', 'postal_code', 'country','phone_number']
+        fields = ['full_name', 'street', 'city', 'state', 'postal_code', 'country', 'phone_number', 'discount_code']
         widgets = {
             'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter full name'}),
             'street': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter street address'}),
@@ -316,6 +315,16 @@ class CheckoutForm(forms.ModelForm):
             'postal_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter postal code'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Phone Number'}),
         }
+    
+    def clean_discount_code(self):
+        code = self.cleaned_data.get('discount_code')
+        if code:
+            try:
+                discount = DiscountCode.objects.get(code=code, is_used=False, expires_at__gt=timezone.now())
+                return code
+            except DiscountCode.DoesNotExist:
+                raise forms.ValidationError("Invalid or expired discount code.")
+        return code
         
 class AddressForm(forms.ModelForm):
     state = forms.CharField(

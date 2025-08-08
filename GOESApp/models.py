@@ -127,30 +127,6 @@ class Review(models.Model):
         ordering = ['-created_at']
 
 # models.py
-class Transaction(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='transactions', null=True, blank=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    products = models.ManyToManyField(Product, related_name='transactions')
-    tx_ref = models.CharField(max_length=100, unique=True)  # Ensure unique tx_ref
-    flw_transaction_id = models.CharField(max_length=100, blank=True, null=True)  # Store Flutterwave transaction ID
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)  # Link to address
-    order_note = models.TextField(blank=True, null=True)  # Optional order note field
-    TRANSACTION_STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('approved', 'Approved'),
-        ('declined', 'Declined'),
-    )
-    transaction_status = models.CharField(max_length=20, choices=TRANSACTION_STATUS_CHOICES, default='pending')
-    transaction_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user.username if self.user else 'Anonymous'} - {self.amount} - {self.transaction_status}"
-
-    class Meta:
-        verbose_name = 'Transaction'
-        verbose_name_plural = 'Transactions'
-        ordering = ['-transaction_date']
         
 class Cart(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='cart', null=True, blank=True)
@@ -158,7 +134,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     products = models.ManyToManyField(Product, related_name='cart_items', blank=True)
 
-    def __str__(self):
+    def __str__(self):  
         if self.user:
             return f"Cart of {self.user.username}"
         else:
@@ -204,7 +180,47 @@ class HomePageImages(models.Model):
         verbose_name = "Home Page Images"
         verbose_name_plural = "Home Page Images"
 
+    
+class DiscountCode(models.Model):
+    email = models.ForeignKey(Newsletter, on_delete=models.CASCADE, related_name='discount_codes')
+    code = models.CharField(max_length=20, unique=True)
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=5.00)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.code} - {self.email.email} - {self.discount_percentage}%"
+
+    class Meta:
+        verbose_name = 'Discount Code'
+        verbose_name_plural = 'Discount Codes'
+        
+class Transaction(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='transactions', null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    products = models.ManyToManyField(Product, related_name='transactions')
+    tx_ref = models.CharField(max_length=100, unique=True)
+    flw_transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
+    order_note = models.TextField(blank=True, null=True)
+    discount_code = models.ForeignKey(DiscountCode, on_delete=models.SET_NULL, null=True, blank=True)
+    TRANSACTION_STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('approved', 'Approved'),
+        ('declined', 'Declined'),
+    )
+    transaction_status = models.CharField(max_length=20, choices=TRANSACTION_STATUS_CHOICES, default='pending')
+    transaction_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username if self.user else 'Anonymous'} - {self.amount} - {self.transaction_status}"
+
+    class Meta:
+        verbose_name = 'Transaction'
+        verbose_name_plural = 'Transactions'
+        ordering = ['-transaction_date']
 
 class OrderItem(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='order_items')
@@ -219,4 +235,4 @@ class OrderItem(models.Model):
 
     def total_price(self):
         return self.price * self.quantity
-
+    

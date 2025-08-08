@@ -25,7 +25,8 @@ urlpatterns = [
     path('our-story/', views.our_story, name='our_story'),
     path('policies/', views.policies, name='policies'),  
     path('send/', views.send_newsletter, name='send_newsletter'),
-    path('subscriber-count/', views.subscriber_count, name='subscriber_count'),
+    path('subscriber-count/', views.subscriber_count, name='subscriber_count'), path('generate-discount-code/', views.generate_discount_code, name='generate_discount_code'),
+    path('validate-discount-code/', views.validate_discount_code, name='validate_discount_code'),
     
     # Password Reset URLs
     path('password_reset/', views.password_reset_request, name='password_reset'),

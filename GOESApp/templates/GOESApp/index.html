@@ -7620,9 +7620,80 @@
 
 		if (window.RS_MODULES.checkMinimal !== undefined) { window.RS_MODULES.checkMinimal(); };
 	</script>
+<!-- Discount Modal -->
+<div class="modal fade" id="discountModal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="discountModalLabel">Get 5% Off Your Order!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Enter your email to receive a 5% discount code for orders over ₦200,000!</p>
+        <form id="discountForm" method="POST" action="{% url 'generate_discount_code' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="emailInput" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="emailInput" name="email" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Get Discount Code</button>
+        </form>
+        <div id="discountCodeDisplay" class="mt-3 d-none">
+          <p><strong>Your Discount Code:</strong> <span id="discountCode"></span></p>
+          <p>Use this code at checkout for orders over ₦200,000 to get 5% off!</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript to show modal on page load -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var discountModal = new bootstrap.Modal(document.getElementById('discountModal'), {
+      backdrop: 'static', // Prevent closing by clicking outside
+      keyboard: false // Prevent closing with ESC key
+    });
+    discountModal.show();
+  });
+</script>
+
+<!-- JavaScript to handle form submission and display discount code -->
+<script>
+  document.getElementById('discountForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = this;
+    var formData = new FormData(form);
+    
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('discountForm').classList.add('d-none');
+        document.getElementById('discountCode').textContent = data.code;
+        document.getElementById('discountCodeDisplay').classList.remove('d-none');
+      } else {
+        alert(data.error || 'An error occurred. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    });
+  });
+</script>
 
     <!-- Discount Modal -->    
-    <div class="discount-modal" id="discountModal" style="display: none;">
+    {% comment %} <div class="discount-modal" id="discountModal" style="display: none;">
         <div class="discount-modal-content">
             <span class="discount-close">&times;</span>
             <div class="discount-modal-inner">
@@ -7641,7 +7712,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
     <style>
         .discount-modal {
