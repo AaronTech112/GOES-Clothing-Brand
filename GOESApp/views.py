@@ -43,7 +43,7 @@ def home(request):
         'form': form,
         'home_images':home_images,
     }
-    return render(request, 'GOESAPP/index.html', context)
+    return render(request, 'GOESApp/index.html', context)
 
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
@@ -164,7 +164,7 @@ def shop(request):
         'categories': categories,
         'cart_count': cart_item_count(request)['cart_count'],
     }
-    return render(request, 'GOESAPP/shop.html', context)
+    return render(request, 'GOESApp/shop.html', context)
 
 @login_required(login_url='/login_user')
 def checkout(request):
@@ -317,7 +317,7 @@ def checkout(request):
         'discount_amount': discount_amount,
         'applied_discount': applied_discount,
     }
-    return render(request, 'GOESAPP/checkout.html', context)
+    return render(request, 'GOESApp/checkout.html', context)
 
 @login_required(login_url='/login_user')
 def initiate_payment(request, transaction_id):
@@ -335,7 +335,7 @@ def initiate_payment(request, transaction_id):
             'email': request.user.email,
         },
     }
-    return render(request, 'GOESAPP/initiate_payment.html', context)
+    return render(request, 'GOESApp/initiate_payment.html', context)
 
 import json
 from django.http import HttpResponse
@@ -644,7 +644,7 @@ def thank_you(request, transaction_id):
         'categories': categories,
         'cart_count': cart_count,
     }
-    return render(request, 'GOESAPP/thank_you.html', context)
+    return render(request, 'GOESApp/thank_you.html', context)
 
 def verify_transaction(transaction_id):
     url = f"https://api.flutterwave.com/v3/transactions/{transaction_id}/verify"
@@ -802,7 +802,7 @@ def order_detail(request, transaction_id):
         'shipping_fee': shipping_fee,
         'total_amount': transaction.amount,  # Already includes shipping
     }
-    return render(request, 'GOESAPP/order_detail.html', context)
+    return render(request, 'GOESApp/order_detail.html', context)
 
 @login_required(login_url='/login_user')
 def profile(request):
@@ -829,7 +829,7 @@ def profile(request):
         'current_orders': current_orders,
         'past_orders': past_orders,
     }
-    return render(request, 'GOESAPP/profile.html', context)
+    return render(request, 'GOESApp/profile.html', context)
 
 
 @login_required(login_url='/login_user')
@@ -857,7 +857,7 @@ def edit_address(request):
         'is_edit': address,
         'categories': categories,
     }
-    return render(request, 'GOESAPP/edit_address.html', context)
+    return render(request, 'GOESApp/edit_address.html', context)
 
 def cart(request):
     categories = Category.objects.all()
@@ -906,7 +906,7 @@ def cart(request):
         'total_price': total_price,
         'categories': categories,
     }
-    return render(request, 'GOESAPP/cart.html', context)
+    return render(request, 'GOESApp/cart.html', context)
 
 
 def register(request):
@@ -925,7 +925,7 @@ def register(request):
                 messages.error(request, 'Error creating account. Please check the form.')
         else:
             form = RegisterForm()
-    return render(request, 'GOESAPP/register.html', {'form': form})
+    return render(request, 'GOESApp/register.html', {'form': form})
 
 def login_user(request):
     if request.user.is_authenticated:
@@ -942,7 +942,7 @@ def login_user(request):
                 return redirect('home')
             else:
                 messages.error(request, 'Invalid email or password.')
-        return render(request, 'GOESAPP/login.html', {'error_message': error_message})
+        return render(request, 'GOESApp/login.html', {'error_message': error_message})
 
 
 def password_reset_request(request):
@@ -1026,7 +1026,7 @@ def our_story(request):
         'categories': categories,
         'cart_count': cart_count,
     }
-    return render(request, 'GOESAPP/our_story.html', context)
+    return render(request, 'GOESApp/our_story.html', context)
 
 # views.py
 def policies(request):
@@ -1040,7 +1040,7 @@ def policies(request):
         'categories': categories,
         'cart_count': cart_count,
     }
-    return render(request, 'GOESAPP/policies.html', context)
+    return render(request, 'GOESApp/policies.html', context)
 
 import uuid
 from django.utils import timezone
