@@ -1,0 +1,457 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Policies - GOES Clothing Brand</title>
+  <link rel="shortcut icon" href="{% static 'images/LOGO_ISOTYPE[1].png' %}" type="image/x-icon" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    /* Navbar */
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .nav-link {
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: .5px;
+      margin: 0 .5rem;
+    }
+
+    /* Header Section */
+    .header-section {
+      padding: 4rem 0;
+      background: #fff;
+      text-align: center;
+    }
+    .header-section h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .header-section p {
+      font-size: 1.1rem;
+      color: #555;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Policy Sections */
+    .policy-section {
+      padding: 2rem 0;
+    }
+    .accordion-item {
+      border: none;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .accordion-button {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+      background: #fafafa;
+      border-radius: 8px !important;
+      padding: 1.25rem;
+      transition: background 0.3s ease;
+    }
+    .accordion-button:not(.collapsed) {
+      background: #fff;
+      color: #007bff;
+    }
+    .accordion-button:focus {
+      box-shadow: none;
+    }
+    .accordion-body {
+      padding: 1.5rem;
+      background: #fff;
+      border-radius: 0 0 8px 8px;
+      line-height: 1.8;
+      color: #555;
+    }
+    .accordion-body h5 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .accordion-body ul {
+      padding-left: 1.5rem;
+    }
+    .accordion-body ul li {
+      margin-bottom: 0.5rem;
+    }
+    .support-link {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .support-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 0;
+      padding: 2rem 0;
+      background: #fafafa;
+    }
+    .footer-links h5 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .footer-links a {
+      display: block;
+      margin-bottom: .5rem;
+      color: #555;
+      text-decoration: none;
+      font-size: .9rem;
+    }
+
+    /* Mobile Footer */
+    .mobile-footer-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #fff;
+      border-top: 1px solid #ddd;
+      z-index: 1050;
+    }
+    .mobile-footer-nav .footer-icon {
+      color: #000;
+      font-size: 1.5rem;
+      text-decoration: none;
+      position: relative;
+    }
+    .mobile-footer-nav .footer-icon:hover {
+      color: #007bff;
+    }
+    .badge-sm {
+      font-size: 0.65rem;
+      padding: 0.2em 0.4em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+    <div class="container">
+      <div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-hh9pp43d mcb-item-header_logo-inner">
+        <a class="logo-wrapper" href="{% url 'home' %}">
+          <img style="width:100px;" src="{% static 'images/LOGO_20_TRANS[1].png'%}" alt="clothingstore2" />
+        </a>
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="collectionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Shop
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="collectionsDropdown">
+              {% for category in categories %}
+                <li><a class="dropdown-item" href="{% url 'shop' %}?category={{ category.id }}">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'our_story' %}">Our Story</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'lookbook' %}">Look Book</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if user.is_authenticated %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3">
+              <a class="nav-link" href="{% url 'profile' %}" title="Your Account">
+                <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3"><a class="btn btn-outline-primary" href="{% url 'login_user' %}">Login</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header Section -->
+  <section class="header-section">
+    <h1>Policies</h1>
+    <p>Our policies are designed to ensure a seamless and trustworthy experience with GOES. Please review them to understand your rights and responsibilities.</p>
+  </section>
+
+  <!-- Policy Sections -->
+  <section class="policy-section">
+    <div class="container">
+      <div class="accordion" id="policyAccordion">
+        <!-- Terms & Conditions -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTerms">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTerms" aria-expanded="true" aria-controls="collapseTerms">
+              Terms & Conditions
+            </button>
+          </h2>
+          <div id="collapseTerms" class="accordion-collapse collapse show" aria-labelledby="headingTerms" data-bs-parent="#policyAccordion">
+            <div class="accordion-body">
+              <p>By engaging with our website, you agree to the terms and conditions that govern its usage. These Terms & Conditions ensure a smooth, secure, and exceptional experience — consistent with our brand values of quality and trust. Please review them before making a purchase.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Return & Exchange Policy -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingReturns">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturns" aria-expanded="false" aria-controls="collapseReturns">
+              Return & Exchange Policy
+            </button>
+          </h2>
+          <div id="collapseReturns" class="accordion-collapse collapse" aria-labelledby="headingReturns" data-bs-parent="#policyAccordion">
+            <div class="accordion-body">
+              <p>At GOES, we want you to love what you wear with a bold statement of faith, fashion, and culture. If you're not completely satisfied with your purchase, we’re here to help.</p>
+              <h5>Returns</h5>
+              <p>You may return or exchange eligible items within 10 days of receiving your order for a refund, exchange, or store credit. Additionally, a proof of purchase must be provided.</p>
+              <ul>
+                <li>Items must be unworn, unwashed, and in original condition with all tags attached.</li>
+                <li>Kindly note that Final sale, custom, or clearance items are not eligible for return or exchange.</li>
+                <li>Once we receive the item, we will inspect it and notify you of the approval or rejection of your refund or exchange.</li>
+                <li>Customers are responsible for the cost of return shipping, including duties and taxes that may apply. We recommend using a trackable shipping method. We are not responsible for lost or stolen packages.</li>
+              </ul>
+              <h5>Refunds</h5>
+              <p>Refunds are processed within 10 business days after we receive and inspect your return. Refunds will be issued to the original payment method or as store credit, depending on your selection.</p>
+              <h5>Need Help?</h5>
+              <p>If you have any questions about your order, don't hesitate to contact our team at <a href="mailto:support@godoneveryside.com" class="support-link">support@godoneveryside.com</a>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Policy -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingShipping">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipping" aria-expanded="false" aria-controls="collapseShipping">
+              Shipping Policy
+            </button>
+          </h2>
+          <div id="collapseShipping" class="accordion-collapse collapse" aria-labelledby="headingShipping" data-bs-parent="#policyAccordion">
+            <div class="accordion-body">
+              <p>We aim to get your order to you as quickly and safely as possible.</p>
+              <h5>Standard Shipping</h5>
+              <ul>
+                <li><strong>Domestic:</strong> 3–5 business days.</li>
+                <li><strong>International:</strong> 7–14 business days.</li>
+                <li>Enjoy same-day delivery on orders within Abuja. Ensure your order is placed before 4 PM to take advantage of this offer.</li>
+              </ul>
+              <h5>Processing Time</h5>
+              <p>Orders ship within 1–2 business days. You’ll get a tracking number once your order is on the way. For international orders, Customs fees and taxes are not included and may apply at delivery.</p>
+              <h5>Support</h5>
+              <p>Kindly note that delivery times may vary due to unforeseen circumstances such as customs delays, courier issues, or extreme weather conditions. We'll provide you with a tracking number as soon as your order ships so you can monitor its progress in real time. If you have any queries about your order, please contact us at <a href="mailto:support@godoneveryside.com" class="support-link">support@godoneveryside.com</a>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy Policy -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingPrivacy">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrivacy" aria-expanded="false" aria-controls="collapsePrivacy">
+              Privacy Policy
+            </button>
+          </h2>
+          <div id="collapsePrivacy" class="accordion-collapse collapse" aria-labelledby="headingPrivacy" data-bs-parent="#policyAccordion">
+            <div class="accordion-body">
+              <p>At GOES, we respect your privacy and are fully committed to protecting your personal information. This policy outlines how we collect, use, and safeguard your data with discretion and care.</p>
+              <p>Any information you share with us is handled with the utmost confidentiality and is used solely to enhance your experience with our brand.</p>
+              <p>We never compromise on privacy. Your trust is as valuable to us as your loyalty.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms of Service -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTermsOfService">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTermsOfService" aria-expanded="false" aria-controls="collapseTermsOfService">
+              Terms of Service
+            </button>
+          </h2>
+          <div id="collapseTermsOfService" class="accordion-collapse collapse" aria-labelledby="headingTermsOfService" data-bs-parent="#policyAccordion">
+            <div class="accordion-body">
+              <p><strong>GOD ON EVERY SIDE - GOES</strong></p>
+              <h5>1. Overview</h5>
+              <p>Welcome to GOES. By accessing this website, you agree to the Terms outlined below. These terms exist to protect both you and us and ensure a high-quality shopping experience.</p>
+              <h5>2. Use of This Site</h5>
+              <p>You agree to use this website for personal, lawful purposes only. Unauthorized use, including copying content or attempting to interfere with site functionality, is prohibited.</p>
+              <h5>3. Product Availability & Accuracy</h5>
+              <p>We do our best to ensure that all product information, pricing, and availability are accurate. However, occasional errors may occur, and we reserve the right to correct them without prior notice.</p>
+              <h5>4. Orders & Payment</h5>
+              <p>All orders are subject to confirmation and availability. Prices are listed in Naira [₦] and may include applicable taxes depending on your region.</p>
+              <p>We accept secure payment methods such as:</p>
+              <ul>
+                <li>🛒 Visa, Mastercard, Amex, PayPal, Apple Pay</li>
+              </ul>
+              <h5>5. Shipping & Delivery</h5>
+              <p>Please refer to our Shipping Policyfor estimated timelines, tracking, and shipping options. Delivery delays due to customs, weather, or carrier issues are outside of our control.</p>
+              <h5>6. Returns & Exchanges</h5>
+              <p>Our Return & Exchange Policy outlines eligible returns. Eligible items can be exchanged or returned within 10 days, provided they are unworn, undamaged, and in original packaging.</p>
+              <p>🚫 Final sale, custom, or made-to-order pieces are non-returnable.</p>
+              <h5>7. Privacy</h5>
+              <p>We value your trust. Your personal information is handled in accordance with our Privacy Policy, using secure systems and never shared with third parties for marketing without consent.</p>
+              <h5>📬 Contact Us</h5>
+              <p>For questions about these Terms, reach out anytime: <a href="mailto:support@godoneveryside.com" class="support-link">support@godoneveryside.com</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+			<!-- Improved Footer -->
+			<footer id="mfn-footer-template" class="text-white" style="background-color: #000 !important; font-family: 'Poppins', sans-serif; border-top: 2px solid  #ffb3b3;">
+			<div class="container py-5">
+				<div class="row gy-4">
+
+				<!-- Contact Info -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Contact</h6>
+					<p class="mb-2" style="font-size: 1rem;">
+					<i class="fa fa-envelope me-2" style="color: red;"></i>
+					<a href="mailto:support@godoneveryside.com" class="text-white text-decoration-none">support@godoneveryside.com</a>
+					</p>
+
+				</div>
+
+				<!-- Pages -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Quick Links</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					<li><a href="{% url 'shop' %}" class="text-white text-decoration-none">Look book</a></li>
+					<li><a href="{% url 'shop' %}" class="text-white text-decoration-none">Shop</a></li>
+					<li><a href="{% url 'our_story' %}" class="text-white text-decoration-none">Our Story</a></li>
+					<li><a href="{% url 'cart' %}" class="text-white text-decoration-none">Cart</a></li>
+					<li><a href="{% url 'profile' %}" class="text-white text-decoration-none">Profile</a></li>
+					<li><a href="{% url 'policies' %}" class="text-white text-decoration-none">Policies</a></li>
+					</ul>
+				</div>
+
+				<!-- Collections -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Shop</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					{% for category in categories %}
+						<li><a href="{% url 'shop' %}?category={{ category.id }}" class="text-white text-decoration-none" >{{ category.name }}</a></li>
+					{% empty %}
+						<li class="text-muted">No collections found.</li>
+					{% endfor %}
+					</ul>
+				</div>
+
+				<!-- Social Media -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Follow Us</h6>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="bi bi-instagram me-2" style="color: RED;"></i>
+					<a href="https://www.instagram.com/godoneveryside/" target="_blank" class="text-white text-decoration-none">@godoneveryside</a>
+					</p>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="bi bi-tiktok me-2" style="color: RED;"></i>
+					<a href="https://www.tiktok.com/@godoneveryside" target="_blank" class="text-white text-decoration-none">TikTok</a>
+					</p>
+					<p style="font-size: 1rem;">
+					<i class="bi bi-facebook me-2" style="color: RED;"></i>
+					<a href="https://www.facebook.com/godoneveryside" target="_blank" class="text-white text-decoration-none">Facebook</a>
+					</p>
+				</div>
+
+				</div>
+
+				<!-- Footer Bottom -->
+				<div class="row mt-4 pt-3 border-top" style="border-color:  red !important;">
+				<div class="col text-center" style="font-size: 0.95rem;">
+					<span>© 2025 <strong style="color:  red;">GOES</strong></span>
+					<span class="mx-2">|</span>
+					<span>All Rights Reserved</span>
+					<span class="mx-2">|</span>
+					<a href="{% url 'policies' %}" class="text-decoration-underline" style="color:  red;">Privacy Policy</a>
+				</div>
+				</div>
+			</div>
+
+			<!-- Internal Styles -->
+			<style>
+				#mfn-footer-template a:hover {
+				color:  #ffb3b3 !important;
+				text-decoration: underline !important;
+				}
+
+				@media (max-width: 576px) {
+				#mfn-footer-template h6 {
+					font-size: 1rem;
+				}
+
+				#mfn-footer-template p,
+				#mfn-footer-template li {
+					font-size: 0.95rem;
+				}
+				}
+			</style>
+			</footer>
+
+  <!-- Mobile Sticky Footer Menu -->
+  <div class="mobile-footer-nav d-md-none d-flex justify-content-around align-items-center">
+    <a href="{% url 'home' %}" class="footer-icon">
+      <i class="bi bi-grid-fill"></i>
+    </a>
+    <a href="{% url 'cart' %}" class="footer-icon position-relative">
+      <i class="bi bi-bag-fill"></i>
+      {% if cart_count > 0 %}
+        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle badge-sm">{{ cart_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'profile' %}" class="footer-icon">
+      <i class="bi bi-person-fill"></i>
+    </a>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,567 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send Newsletter - GOES Clothing Brand</title>
+  <link rel="shortcut icon" href="{% static 'images/LOGO_ISOTYPE[1].png' %}" type="image/x-icon" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      min-height: 100vh;
+      position: relative;
+      padding-bottom: 80px;
+    }
+    
+    .navbar {
+      background-color: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      background-color: rgba(255, 255, 255, 0.95);
+      margin-bottom: 30px;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .card-header {
+      background: linear-gradient(45deg, #000, #333);
+      padding: 1.5rem;
+      border-bottom: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card-header:before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      z-index: 0;
+    }
+    
+    .card-header h3 {
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    
+    .card-body {
+      padding: 2rem;
+    }
+    
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+      border-radius: 10px;
+      padding: 0.85rem 1.2rem;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      font-size: 1rem;
+    }
+    
+    .form-control:focus {
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.08);
+      border-color: #000;
+      outline: none;
+    }
+    
+    .input-group {
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .input-group-text {
+      background-color: #f8f9fa;
+      border-color: #e0e0e0;
+      color: #495057;
+      padding-left: 1.2rem;
+      padding-right: 1.2rem;
+    }
+    
+    textarea.form-control {
+      min-height: 180px;
+      line-height: 1.6;
+    }
+    
+    .btn {
+      padding: 0.85rem 1.8rem;
+      border-radius: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+      z-index: -1;
+    }
+    
+    .btn:hover::after {
+      height: 100%;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, #000, #333);
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+      background: linear-gradient(45deg, #333, #000);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(45deg, #6c757d, #495057);
+      border: none;
+      box-shadow: 0 4px 15px rgba(108,117,125,0.2);
+    }
+    
+    .btn-secondary:hover, .btn-secondary:focus {
+      background: linear-gradient(45deg, #495057, #6c757d);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(108,117,125,0.15);
+    }
+    
+    .btn i {
+      transition: transform 0.3s ease;
+    }
+    
+    .btn:hover i {
+      transform: translateX(3px);
+    }
+    
+    #preview {
+      min-height: 180px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      padding: 1.5rem;
+      background-color: white;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+      overflow-y: auto;
+      max-height: 350px;
+    }
+    
+    #preview h3, #preview h4 {
+      color: #333;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    
+    #preview hr {
+      margin: 1rem 0;
+      opacity: 0.1;
+    }
+    
+    #subscriberCount {
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(45deg, #28a745, #20c997);
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    #subscriberCount:before {
+      content: '\f4e2';
+      font-family: 'Bootstrap Icons';
+      margin-right: 0.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .alert {
+      border-radius: 10px;
+      border: none;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .alert-success {
+      background-color: rgba(40, 167, 69, 0.1);
+      border-left: 4px solid #28a745;
+      color: #155724;
+    }
+    
+    .alert-warning {
+      background-color: rgba(255, 193, 7, 0.1);
+      border-left: 4px solid #ffc107;
+      color: #856404;
+    }
+    
+    .alert-danger {
+      background-color: rgba(220, 53, 69, 0.1);
+      border-left: 4px solid #dc3545;
+      color: #721c24;
+    }
+    
+    .alert-info {
+      background-color: rgba(23, 162, 184, 0.1);
+      border-left: 4px solid #17a2b8;
+      color: #0c5460;
+    }
+    
+    .alert-dismissible .btn-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.5rem;
+      color: inherit;
+      opacity: 0.5;
+      transition: all 0.2s ease;
+    }
+    
+    .alert-dismissible .btn-close:hover {
+      opacity: 1;
+    }
+    
+    .icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .icon-circle i {
+      font-size: 1.2rem;
+    }
+    
+    .bg-success-subtle {
+      background-color: rgba(40, 167, 69, 0.15);
+    }
+    
+    .bg-primary-subtle {
+      background-color: rgba(13, 110, 253, 0.15);
+    }
+    
+    .bg-info-subtle {
+      background-color: rgba(23, 162, 184, 0.15);
+    }
+    
+    .list-group-item {
+      transition: all 0.3s ease;
+      border-radius: 10px !important;
+      margin-bottom: 0.5rem;
+    }
+    
+    .list-group-item:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+      transform: translateX(5px);
+    }
+    
+    .footer {
+      background: linear-gradient(45deg, #000, #333);
+      color: white;
+      padding: 1.5rem 0;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .footer-content p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 0;
+    }
+    
+    .footer-icons {
+      display: flex;
+      gap: 1.2rem;
+    }
+    
+    .footer-icon {
+      color: white;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .footer-icon:hover {
+      color: #fff;
+      transform: translateY(-3px);
+      opacity: 1;
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">
+      <img src="{% static 'images/LOGO_ISOTYPE[1].png' %}" alt="GOES Logo" height="40">
+      GOES
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'shop' %}">Shop</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'our_story' %}">Our Story</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'send_newsletter' %}">Newsletter</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3><i class="bi bi-envelope-paper-fill me-2"></i>Send Newsletter</h3>
+                        <span id="subscriberCount" class="badge bg-light text-dark">Loading...</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'warning' %}bi-exclamation-triangle{% else %}bi-info-circle{% endif %} me-2"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" id="newsletterForm">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="subject" class="form-label">Subject</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter newsletter subject" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="message" class="form-label">Message</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-chat-text"></i></span>
+                                <textarea class="form-control" id="message" name="message" rows="5" placeholder="Write your newsletter content here..." required></textarea>
+                            </div>
+                            <small class="text-muted">Supports basic HTML formatting</small>
+                        </div>
+                        <div class="mb-4">
+                            <label for="preview" class="form-label">Preview</label>
+                            <div id="preview" class="border p-4 bg-white rounded shadow-sm">
+                                <p class="text-muted">Your message preview will appear here...</p>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-secondary" id="previewBtn">
+                                <i class="bi bi-eye me-1"></i> Refresh Preview
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="sendBtn">
+                                <i class="bi bi-envelope-fill me-1"></i> Send Newsletter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header text-white">
+                    <h3><i class="bi bi-info-circle me-2"></i>Newsletter Tips</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex align-items-start p-3 border-0">
+                            <div class="icon-circle bg-success-subtle me-3">
+                                <i class="bi bi-check2-circle text-success"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Keep it concise</h5>
+                                <p class="mb-0 text-muted">Short, focused newsletters have higher engagement rates.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-start p-3 border-0">
+                            <div class="icon-circle bg-primary-subtle me-3">
+                                <i class="bi bi-chat-quote text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Compelling subject lines</h5>
+                                <p class="mb-0 text-muted">Use clear, engaging subject lines to improve open rates.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-start p-3 border-0">
+                            <div class="icon-circle bg-info-subtle me-3">
+                                <i class="bi bi-eye text-info"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Preview before sending</h5>
+                                <p class="mb-0 text-muted">Always check how your newsletter looks before sending it out.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer mt-5">
+    <div class="container">
+        <div class="footer-content">
+            <div>
+                <p class="mb-0">&copy; 2023 GOES Clothing Brand. All rights reserved.</p>
+            </div>
+            <div class="footer-icons">
+                <a href="#" class="footer-icon"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="footer-icon"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="footer-icon"><i class="bi bi-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageInput = document.getElementById('message');
+        const subjectInput = document.getElementById('subject');
+        const previewDiv = document.getElementById('preview');
+        const subscriberCountSpan = document.getElementById('subscriberCount');
+        const sendButton = document.getElementById('sendBtn');
+        const previewButton = document.getElementById('previewBtn');
+        const form = document.getElementById('newsletterForm');
+        
+        // Function to update preview
+        function updatePreview() {
+            if (subjectInput.value) {
+                previewDiv.innerHTML = `<h4 style="border-bottom: 1px solid #ddd; padding-bottom: 10px;">${subjectInput.value}</h4><div>${messageInput.value || ''}</div>`;
+            } else {
+                previewDiv.innerHTML = messageInput.value ? `<div>${messageInput.value}</div>` : '<p class="text-muted">Your message preview will appear here...</p>';
+            }
+        }
+
+        // Update preview when clicking preview button
+        previewButton.addEventListener('click', function() {
+            if (!subjectInput.value || !messageInput.value) {
+                alert('Please fill in both subject and message fields');
+                return;
+            }
+            updatePreview();
+        });
+        
+        // Also update preview when typing (with debounce)
+        let debounceTimer;
+        const debounce = (callback, time) => {
+            window.clearTimeout(debounceTimer);
+            debounceTimer = window.setTimeout(callback, time);
+        };
+        
+        messageInput.addEventListener('input', () => {
+            debounce(updatePreview, 500);
+        });
+        
+        subjectInput.addEventListener('input', () => {
+            debounce(updatePreview, 500);
+        });
+
+        // Confirm before sending
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to send this newsletter to all subscribers?')) {
+                e.preventDefault();
+            } else {
+                sendButton.disabled = true;
+                sendButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+            }
+        });
+
+        // Fetch subscriber count
+        fetch('{% url "subscriber_count" %}')
+            .then(response => response.json())
+            .then(data => {
+                subscriberCountSpan.textContent = 
+                    `${data.count} subscriber${data.count !== 1 ? 's' : ''}`;
+            })
+            .catch(error => {
+                console.error('Error fetching subscriber count:', error);
+                subscriberCountSpan.textContent = 'Unable to load subscriber count';
+            });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,356 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Cart - Clothing Store</title>
+  <link rel="shortcut icon" href="{% static 'images/LOGO_ISOTYPE[1].png' %}" type="image/x-icon" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+    }
+    .cart-item img {
+      width: 100px;
+      height: auto;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .cart-summary {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+    .cart-summary h4 {
+      font-weight: 600;
+    }
+    .btn-outline-dark {
+      border-radius: 0.375rem;
+    }
+    /* Navbar */
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .nav-link {
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: .5px;
+      margin: 0 .5rem;
+    }
+    footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      background: #fafafa;
+    }
+    .footer-links h5 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .footer-links a {
+      display: block;
+      margin-bottom: .5rem;
+      color: #555;
+      text-decoration: none;
+      font-size: .9rem;
+    }
+    @media (max-width: 767px) {
+      .product-details .qty-add {
+        margin-top: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+    <div class="container">
+      <div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-hh9pp43d mcb-item-header_logo-inner">
+        <a class="logo-wrapper" href="{% url 'home' %}">
+          <img style="width:100px;" src="{% static 'images/LOGO_20_TRANS[1].png'%}" alt="clothingstore2" />
+        </a>
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="collectionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Shop
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="collectionsDropdown">
+              {% for category in categories %}
+                <li><a class="dropdown-item" href="{% url 'shop' %}?category={{ category.id }}">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'our_story' %}">Our Story</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'lookbook' %}">Look Book</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if user.is_authenticated %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3">
+              <a class="nav-link" href="{% url 'profile' %}" title="Your Account">
+                <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3"><a class="btn btn-outline-primary" href="{% url 'login_user' %}">Login</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Cart Section -->
+  <section class="container my-5">
+    <h2 class="mb-4 text-center">Your Shopping Cart</h2>
+    <div class="row g-4">
+      <!-- Cart Items -->
+      <div class="col-lg-8">
+        {% if cart_items %}
+          {% for item in cart_items %}
+            <div class="border rounded p-3 mb-4 cart-item d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                      {% if item.product.images.first %}
+                          <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="me-3">
+                      {% else %}
+                          <img src="{% static 'images/default.jpg' %}" alt="{{ item.product.name }}"  class="me-3">
+                      {% endif %}
+                <div>
+                  <h5 class="mb-1">{{ item.product.name }}</h5>
+                  <p class="mb-1">
+                    <small>
+                      {% if item.product.size %}Size: {{ item.product.size }} | {% endif %}
+                      {% if item.product.color %}Color: {{ item.product.color }}{% endif %}
+                    </small>
+                  </p>
+                  <p class="mb-1">₦{{ item.product.price|floatformat:0 }} x {{ item.quantity }}</p>
+                </div>
+              </div>
+              <div>
+                <form action="{% url 'remove_from_cart' item.id %}" method="POST">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center">
+            <p>Your cart is empty.</p>
+            <a href="{% url 'home' %}" class="btn btn-outline-dark">Continue Shopping</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Summary Section -->
+      <div class="col-lg-4">
+        <div class="cart-summary">
+          <h4 class="mb-3">Order Summary</h4>
+          <p class="d-flex justify-content-between">
+            <span>Subtotal:</span>
+            <span>₦{{ subtotal|floatformat:0 }}</span>
+          </p>
+          <p class="d-flex justify-content-between">
+            <span>Shipping:</span>
+            <span>₦{{ shipping_fee|floatformat:0 }}</span>
+          </p>
+          <div class="shipping-info small text-muted mb-2">
+             <i class="bi bi-info-circle me-1"></i>
+             Shipping costs: ₦2,000 for Abuja/FCT, ₦5,000 for other Nigerian states, ₦15,000 for international orders.
+           </div>
+          <hr />
+          <p class="d-flex justify-content-between fw-bold">
+            <span>Total:</span>
+            <span>₦{{ total_price|floatformat:0 }}</span>
+          </p>
+          <div class="d-grid gap-2 mt-4">
+            {% if cart_items %}
+              <a href="{% url 'checkout' %}" class="btn btn-dark">Proceed to Checkout</a>
+            {% endif %}
+            <a href="{% url 'home' %}" class="btn btn-outline-dark">Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Recommended Products -->
+
+			<!-- Improved Footer -->
+			<footer id="mfn-footer-template" class="text-white" style="background-color: #000 !important; font-family: 'Poppins', sans-serif; border-top: 2px solid  #ffb3b3;">
+			<div class="container py-5">
+				<div class="row gy-4">
+
+				<!-- Contact Info -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Contact</h6>
+					<p class="mb-2" style="font-size: 1rem;">
+					<i class="fa fa-envelope me-2" style="color: red;"></i>
+					<a href="mailto:support@godoneveryside.com" class="text-white text-decoration-none">support@godoneveryside.com</a>
+					</p>
+					<p style="font-size: 1rem;">
+					<i class="fa fa-phone me-2" style="color: red;"></i>
+
+					</p>
+				</div>
+
+				<!-- Pages -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Quick Links</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					<li><a href="{% url 'lookbook' %}" class="text-white text-decoration-none">Look Book</a></li>
+					<li><a href="{% url 'shop' %}" class="text-white text-decoration-none">Shop</a></li>
+					<li><a href="{% url 'our_story' %}" class="text-white text-decoration-none">Our Story</a></li>
+					<li><a href="{% url 'cart' %}" class="text-white text-decoration-none">Cart</a></li>
+					<li><a href="{% url 'profile' %}" class="text-white text-decoration-none">Profile</a></li>
+					<li><a href="{% url 'policies' %}" class="text-white text-decoration-none">Policies</a></li>
+					</ul>
+				</div>
+
+				<!-- Collections -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Shop</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					{% for category in categories %}
+						<li><a href="{% url 'shop' %}?category={{ category.id }}" class="text-white text-decoration-none" >{{ category.name }}</a></li>
+					{% empty %}
+						<li class="text-muted">No collections found.</li>
+					{% endfor %}
+					</ul>
+				</div>
+
+				<!-- Social Media -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Follow Us</h6>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="bi bi-instagram me-2" style="color: RED;"></i>
+					<a href="https://www.instagram.com/godoneveryside/" target="_blank" class="text-white text-decoration-none">@godoneveryside</a>
+					</p>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="bi bi-tiktok me-2" style="color: RED;"></i>
+					<a href="https://www.tiktok.com/@godoneveryside" target="_blank" class="text-white text-decoration-none">TikTok</a>
+					</p>
+					<p style="font-size: 1rem;">
+					<i class="bi bi-facebook me-2" style="color: RED;"></i>
+					<a href="https://www.facebook.com/godoneveryside" target="_blank" class="text-white text-decoration-none">Facebook</a>
+					</p>
+				</div>
+
+				</div>
+
+				<!-- Footer Bottom -->
+				<div class="row mt-4 pt-3 border-top" style="border-color:  red !important;">
+				<div class="col text-center" style="font-size: 0.95rem;">
+					<span>© 2025 <strong style="color:  red;">GOES</strong></span>
+					<span class="mx-2">|</span>
+					<span>All Rights Reserved</span>
+					<span class="mx-2">|</span>
+					<a href="{% url 'policies' %}" class="text-decoration-underline" style="color:  red;">Privacy Policy</a>
+				</div>
+				</div>
+			</div>
+
+			<!-- Internal Styles -->
+			<style>
+				#mfn-footer-template a:hover {
+				color:  #ffb3b3 !important;
+				text-decoration: underline !important;
+				}
+
+				@media (max-width: 576px) {
+				#mfn-footer-template h6 {
+					font-size: 1rem;
+				}
+
+				#mfn-footer-template p,
+				#mfn-footer-template li {
+					font-size: 0.95rem;
+				}
+				}
+			</style>
+			</footer>
+
+    <style>
+      .mobile-footer-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: #fff;
+        border-top: 1px solid #ddd;
+        z-index: 1050;
+      }
+
+      .mobile-footer-nav .footer-icon {
+        color: #000;
+        font-size: 1.5rem;
+        text-decoration: none;
+        position: relative;
+      }
+
+      .mobile-footer-nav .footer-icon:hover {
+        color: #007bff;
+      }
+
+      .badge-sm {
+        font-size: 0.65rem;
+        padding: 0.2em 0.4em;
+      }
+  </style>
+  
+  <!-- Mobile Sticky Footer Menu -->
+  <div class="mobile-footer-nav d-md-none d-flex justify-content-around align-items-center">
+    <a href="{% url 'home' %}" class="footer-icon">
+      <i class="bi bi-grid-fill"></i>
+    </a>
+    <a href="{% url 'cart' %}" class="footer-icon position-relative">
+      <i class="bi bi-bag-fill"></i>
+      {% if cart_count > 0 %}
+        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle badge-sm">{{ cart_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'profile' %}" class="footer-icon">
+      <i class="bi bi-person-fill"></i>
+    </a>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>\
+
+</body>
+</html>

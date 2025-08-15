@@ -1,0 +1,647 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout - Clothing Store</title>
+  <link rel="shortcut icon" href="{% static 'images/LOGO_ISOTYPE[1].png' %}" type="image/x-icon" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+    }
+    .cart-item img {
+      width: 100px;
+      height: auto;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .cart-summary {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+    .cart-summary h4 {
+      font-weight: 600;
+    }
+    .btn-outline-dark {
+      border-radius: 0.375rem;
+    }
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .nav-link {
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: .5px;
+      margin: 0 .5rem;
+    }
+    footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      background: #fafafa;
+    }
+    .footer-links h5 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .footer-links a {
+      display: block;
+      margin-bottom: .5rem;
+      color: #555;
+      text-decoration: none;
+      font-size: .9rem;
+    }
+    @media (max-width: 767px) {
+      .product-details .qty-add {
+        margin-top: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar (unchanged) -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+    <div class="container">
+      <div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-hh9pp43d mcb-item-header_logo-inner">
+        <a class="logo-wrapper" href="{% url 'home' %}">
+          <img style="width:100px;" src="{% static 'images/LOGO_20_TRANS[1].png'%}" alt="clothingstore2" />
+        </a>
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="collectionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Shop
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="collectionsDropdown">
+              {% for category in categories %}
+                <li><a class="dropdown-item" href="{% url 'shop' %}?category={{ category.id }}">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'our_story' %}">Our Story</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'lookbook' %}">Look Book</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if user.is_authenticated %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3">
+              <a class="nav-link" href="{% url 'profile' %}" title="Your Account">
+                <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3"><a class="btn btn-outline-primary" href="{% url 'login_user' %}">Login</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Checkout Section -->
+  <section class="container my-5">
+    <h2 class="mb-4 text-center">Checkout</h2>
+    <div class="row g-4">
+      <!-- Delivery Address Form -->
+      <div class="col-lg-8">
+        <div class="border rounded p-4 mb-4">
+          <h4 class="mb-3">Delivery Address</h4>
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+          <form method="POST" id="addressForm">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-12">
+                <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name</label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}
+                  <div class="text-danger">{{ form.full_name.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-12">
+                <label for="{{ form.street.id_for_label }}" class="form-label">Street Address</label>
+                {{ form.street }}
+                {% if form.street.errors %}
+                  <div class="text-danger">{{ form.street.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.city.id_for_label }}" class="form-label">City</label>
+                {{ form.city }}
+                {% if form.city.errors %}
+                  <div class="text-danger">{{ form.city.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.state.id_for_label }}" class="form-label">State</label>
+                {{ form.state }}
+                {% if form.state.errors %}
+                  <div class="text-danger">{{ form.state.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.postal_code.id_for_label }}" class="form-label">Postal Code</label>
+                {{ form.postal_code }}
+                {% if form.postal_code.errors %}
+                  <div class="text-danger">{{ form.postal_code.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.country.id_for_label }}" class="form-label">Country</label>
+                {{ form.country }}
+                {% if form.country.errors %}
+                  <div class="text-danger">{{ form.country.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                  <div class="text-danger">{{ form.phone_number.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-outline-dark mt-3">Save Address</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Order Items -->
+        <div class="border rounded p-4">
+          <h4 class="mb-3">Order Items</h4>
+          {% for item in cart_items %}
+            <div class="cart-item d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center">
+                {% if item.product.images.first %}
+                  <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="me-3">
+                {% else %}
+                  <img src="{% static 'images/default.jpg' %}" alt="{{ item.product.name }}" class="me-3">
+                {% endif %}
+                <div>
+                  <h5 class="mb-1">{{ item.product.name }}</h5>
+                  <p class="mb-1">₦{{ item.product.price|floatformat:0 }} x {{ item.quantity }}</p>
+                  {% if item.size %} <p class="mb-1">Size: {{ item.size }}</p> {% endif %}
+                  {% if item.color %} <p class="mb-1">Color: {{ item.color }}</p> {% endif %}
+                </div>
+              </div>
+              <div>
+                <p class="mb-0">₦{{ item.total_price|floatformat:0 }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="col-lg-4">
+        <div class="cart-summary">
+          <h4 class="mb-3">Order Summary</h4>
+          <p class="d-flex justify-content-between">
+            <span>Subtotal:</span>
+            <span>₦{{ subtotal|floatformat:0 }}</span>
+          </p>
+          <p class="d-flex justify-content-between discount-row" style="display: {% if applied_discount %}block{% else %}none{% endif %};">
+            <span>Discount (5%):</span>
+            <span>-₦{{ discount_amount|floatformat:0 }}</span>
+          </p>
+          <p class="d-flex justify-content-between">
+            <span>Shipping:</span>
+            <span>₦{{ shipping_fee|floatformat:0 }}</span>
+          </p>
+          <div class="shipping-info small text-muted mb-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Shipping costs: ₦2,000 for Abuja/FCT, ₦5,000 for other Nigerian states, ₦15,000 for international orders.
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.discount_code.id_for_label }}" class="form-label">Discount Code</label>
+            <div class="input-group">
+              {{ form.discount_code }}
+              <button type="button" class="btn btn-outline-dark" id="applyDiscountBtn">Apply Discount Code</button>
+            </div>
+            {% if form.discount_code.errors %}
+              <div class="text-danger">{{ form.discount_code.errors }}</div>
+            {% endif %}
+            <div id="discountError" class="text-danger" style="display: none;"></div>
+          </div>
+          <hr />
+          <p class="d-flex justify-content-between fw-bold">
+            <span>Total:</span>
+            <span>₦{{ total_price|floatformat:0 }}</span>
+          </p>
+          <div class="d-grid gap-2 mt-4">
+            <form method="POST" action="{% url 'checkout' %}">
+              {% csrf_token %}
+              <input type="hidden" name="discount_code" id="hiddenDiscountCode" value="{{ form.discount_code.value|default_if_none:'' }}">
+              <div class="mb-4 p-3" style="background-color: #f8f9fa; border-radius: 10px; border-left: 4px solid #6c757d;">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-pencil-square me-2" style="font-size: 1.2rem; color: #6c757d;"></i>
+                  <label for="orderNote" class="form-label fw-bold mb-0">Order Note (Optional)</label>
+                </div>
+                <textarea class="form-control" id="orderNote" name="order_note" rows="3" placeholder="Add any special instructions or notes about your order here..." style="border-radius: 8px; border: 1px solid #ced4da; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;" maxlength="500"></textarea>
+                <div class="d-flex justify-content-between mt-2">
+                  <small class="text-muted"><i class="bi bi-info-circle me-1"></i>You can include delivery instructions, gift message, or any other special requests.</small>
+                  <small class="text-muted"><span id="charCount">0</span>/500 characters</small>
+                </div>
+              </div>
+              <input type="hidden" name="proceed_to_pay" value="true">
+              <button type="submit" class="btn btn-dark" id="proceedToPayBtn" {% if not has_address %}disabled{% endif %}>Proceed to Pay</button>
+            </form>
+            <a href="{% url 'cart' %}" class="btn btn-outline-dark">Back to Cart</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (unchanged) -->
+  <footer id="mfn-footer-template" class="text-white" style="background-color: #000 !important; font-family: 'Poppins', sans-serif; border-top: 2px solid #ffb3b3;">
+    <div class="container py-5">
+      <div class="row gy-4">
+        <div class="col-12 col-sm-6 col-md-3">
+          <h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Contact</h6>
+          <p class="mb-2" style="font-size: 1rem;">
+            <i class="fa fa-envelope me-2" style="color: red;"></i>
+            <a href="mailto:support@godoneveryside.com" class="text-white text-decoration-none">support@godoneveryside.com</a>
+          </p>
+          <p style="font-size: 1rem;">
+            <i class="fa fa-phone me-2" style="color: red;"></i>
+          </p>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+          <h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Quick Links</h6>
+          <ul class="list-unstyled" style="font-size: 1rem;">
+            <li><a href="{% url 'lookbook' %}" class="text-white text-decoration-none">Look Book</a></li>
+            <li><a href="{% url 'shop' %}" class="text-white text-decoration-none">Shop</a></li>
+            <li><a href="{% url 'our_story' %}" class="text-white text-decoration-none">Our Story</a></li>
+            <li><a href="{% url 'cart' %}" class="text-white text-decoration-none">Cart</a></li>
+            <li><a href="{% url 'profile' %}" class="text-white text-decoration-none">Profile</a></li>
+            <li><a href="{% url 'policies' %}" class="text-white text-decoration-none">Policies</a></li>
+          </ul>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+          <h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Shop</h6>
+          <ul class="list-unstyled" style="font-size: 1rem;">
+            {% for category in categories %}
+              <li><a href="{% url 'shop' %}?category={{ category.id }}" class="text-white text-decoration-none">{{ category.name }}</a></li>
+            {% empty %}
+              <li class="text-muted">No collections found.</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+          <h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Follow Us</h6>
+          <p class="mb-1" style="font-size: 1rem;">
+            <i class="bi bi-instagram me-2" style="color: RED;"></i>
+            <a href="https://www.instagram.com/godoneveryside/" target="_blank" class="text-white text-decoration-none">@godoneveryside</a>
+          </p>
+          <p class="mb-1" style="font-size: 1rem;">
+            <i class="bi bi-tiktok me-2" style="color: RED;"></i>
+            <a href="https://www.tiktok.com/@godoneveryside" target="_blank" class="text-white text-decoration-none">TikTok</a>
+          </p>
+          <p style="font-size: 1rem;">
+            <i class="bi bi-facebook me-2" style="color: RED;"></i>
+            <a href="https://www.facebook.com/godoneveryside" target="_blank" class="text-white text-decoration-none">Facebook</a>
+          </p>
+        </div>
+      </div>
+      <div class="row mt-4 pt-3 border-top" style="border-color: red !important;">
+        <div class="col text-center" style="font-size: 0.95rem;">
+          <span>© 2025 <strong style="color: red;">GOES</strong></span>
+          <span class="mx-2">|</span>
+          <span>All Rights Reserved</span>
+          <span class="mx-2">|</span>
+          <a href="{% url 'policies' %}" class="text-decoration-underline" style="color: red;">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+    <style>
+      #mfn-footer-template a:hover {
+        color: #ffb3b3 !important;
+        text-decoration: underline !important;
+      }
+      @media (max-width: 576px) {
+        #mfn-footer-template h6 {
+          font-size: 1rem;
+        }
+        #mfn-footer-template p,
+        #mfn-footer-template li {
+          font-size: 0.95rem;
+        }
+      }
+    </style>
+  </footer>
+
+  <!-- Mobile Sticky Footer Menu -->
+  <div class="mobile-footer-nav d-md-none d-flex justify-content-around align-items-center">
+    <a href="{% url 'home' %}" class="footer-icon">
+      <i class="bi bi-grid-fill"></i>
+    </a>
+    <a href="{% url 'cart' %}" class="footer-icon position-relative">
+      <i class="bi bi-bag-fill"></i>
+      {% if cart_count > 0 %}
+        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle badge-sm">{{ cart_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'profile' %}" class="footer-icon">
+      <i class="bi bi-person-fill"></i>
+    </a>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const addressForm = document.getElementById('addressForm');
+      const proceedToPayBtn = document.getElementById('proceedToPayBtn');
+      const orderNote = document.getElementById('orderNote');
+      const charCount = document.getElementById('charCount');
+      const countrySelect = document.querySelector('select[name="country"]');
+      const stateFieldContainer = document.querySelector('select[name="state"]').parentElement;
+      const originalStateField = document.querySelector('select[name="state"]');
+      const applyDiscountBtn = document.getElementById('applyDiscountBtn');
+      const discountError = document.getElementById('discountError');
+      const discountCodeInput = document.querySelector('input[name="discount_code"]');
+      const hiddenDiscountCode = document.getElementById('hiddenDiscountCode');
+      let stateInputField = null;
+
+      // Get shipping and total price elements
+      const shippingFeeElement = document.querySelector('.cart-summary .d-flex.justify-content-between:not(.discount-row):nth-of-type(2) span:last-child');
+      const totalPriceElement = document.querySelector('.cart-summary .d-flex.justify-content-between.fw-bold span:last-child');
+      const subtotalElement = document.querySelector('.cart-summary .d-flex.justify-content-between:nth-of-type(1) span:last-child');
+      const discountRow = document.querySelector('.cart-summary .discount-row');
+
+      // Extract subtotal value
+      let subtotal = 0;
+      if (subtotalElement) {
+        const subtotalText = subtotalElement.textContent.trim();
+        subtotal = parseFloat(subtotalText.replace('₦', '').replace(/,/g, '')) || 0;
+      }
+
+      // Function to update shipping fee and total price
+      function updateShippingFee() {
+        const selectedCountry = countrySelect.value;
+        let selectedState = '';
+
+        if (stateInputField && stateInputField.style.display !== 'none') {
+          selectedState = stateInputField.value.toLowerCase().trim();
+        } else if (originalStateField && originalStateField.style.display !== 'none') {
+          selectedState = originalStateField.value.toLowerCase().trim();
+        }
+
+        let shippingFee = 2000;
+        if (selectedCountry.toLowerCase() === 'nigeria') {
+          if (selectedState === 'abuja' || selectedState === 'federal capital territory' || selectedState === 'fct') {
+            shippingFee = 2000;
+          } else {
+            shippingFee = 5000;
+          }
+        } else {
+          shippingFee = 15000;
+        }
+
+        if (shippingFeeElement) {
+          shippingFeeElement.textContent = '₦' + shippingFee.toLocaleString();
+        }
+
+        if (totalPriceElement && !isNaN(subtotal)) {
+          const discountAmount = discountRow && discountRow.style.display !== 'none' ? 
+            parseFloat(discountRow.querySelector('span:last-child').textContent.replace('-₦', '').replace(/,/g, '')) || 0 : 0;
+          const totalPrice = subtotal - discountAmount + shippingFee;
+          totalPriceElement.textContent = '₦' + totalPrice.toLocaleString();
+        }
+      }
+
+      // Function to handle country change
+      function handleCountryChange() {
+        const selectedCountry = countrySelect.value;
+        let currentStateValue = '';
+
+        if (selectedCountry === 'Nigeria') {
+          if (stateInputField && stateInputField.style.display !== 'none') {
+            currentStateValue = stateInputField.value.trim();
+          } else if (originalStateField && originalStateField.style.display !== 'none') {
+            currentStateValue = originalStateField.value.trim();
+          }
+        }
+
+        if (selectedCountry === 'Nigeria') {
+          if (stateInputField) {
+            stateInputField.remove();
+            stateInputField = null;
+          }
+          originalStateField.style.display = '';
+          if (currentStateValue) {
+            const optionExists = Array.from(originalStateField.options).some(
+              option => option.value.toLowerCase() === currentStateValue.toLowerCase()
+            );
+            if (optionExists) {
+              originalStateField.value = currentStateValue;
+            } else {
+              originalStateField.value = '';
+            }
+          }
+        } else {
+          if (!stateInputField) {
+            originalStateField.style.display = 'none';
+            stateInputField = document.createElement('input');
+            stateInputField.type = 'text';
+            stateInputField.name = 'state';
+            stateInputField.id = originalStateField.id;
+            stateInputField.className = 'form-control';
+            stateInputField.placeholder = 'Enter state/province/region';
+         
+            stateInputField.value = '';
+            stateInputField.addEventListener('input', updateShippingFee);
+            originalStateField.insertAdjacentElement('afterend', stateInputField);
+          } else {
+            stateInputField.value = '';
+          }
+        }
+
+        updateShippingFee();
+      }
+
+      // Function to update discount display
+      function updateDiscountDisplay(discountAmount) {
+        if (!discountRow) {
+          const shippingRow = document.querySelector('.cart-summary .d-flex.justify-content-between:not(.discount-row):nth-of-type(2)');
+          const newDiscountRow = document.createElement('p');
+          newDiscountRow.className = 'd-flex justify-content-between discount-row';
+          newDiscountRow.style.display = 'block';
+          newDiscountRow.innerHTML = `<span>Discount (5%):</span><span>-₦${discountAmount.toLocaleString()}</span>`;
+          shippingRow.insertAdjacentElement('beforebegin', newDiscountRow);
+        } else {
+          discountRow.querySelector('span:last-child').textContent = `-₦${discountAmount.toLocaleString()}`;
+          discountRow.style.display = 'block';
+        }
+
+        if (totalPriceElement && !isNaN(subtotal)) {
+          const shippingFee = parseFloat(shippingFeeElement.textContent.replace('₦', '').replace(/,/g, '')) || 0;
+          const totalPrice = subtotal - discountAmount + shippingFee;
+          totalPriceElement.textContent = '₦' + totalPrice.toLocaleString();
+        }
+
+        // Update hidden discount code field
+        if (hiddenDiscountCode) {
+          hiddenDiscountCode.value = discountCodeInput.value;
+        }
+      }
+
+      // Function to remove discount display
+      function removeDiscountDisplay() {
+        if (discountRow) {
+          discountRow.style.display = 'none';
+        }
+        if (totalPriceElement && !isNaN(subtotal)) {
+          const shippingFee = parseFloat(shippingFeeElement.textContent.replace('₦', '').replace(/,/g, '')) || 0;
+          const totalPrice = subtotal + shippingFee;
+          totalPriceElement.textContent = '₦' + totalPrice.toLocaleString();
+        }
+        if (discountError) {
+          discountError.style.display = 'none';
+          discountError.textContent = '';
+        }
+        if (hiddenDiscountCode) {
+          hiddenDiscountCode.value = '';
+        }
+      }
+
+      // Handle Apply Discount button click
+      if (applyDiscountBtn) {
+        applyDiscountBtn.addEventListener('click', function () {
+          const code = discountCodeInput.value.trim();
+          if (code) {
+            fetch("{% url 'validate_discount_code' %}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+              },
+              body: `discount_code=${encodeURIComponent(code)}&subtotal=${subtotal}`
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                updateDiscountDisplay(data.discount_amount);
+                if (discountError) {
+                  discountError.style.display = 'none';
+                  discountError.textContent = '';
+                }
+              } else {
+                removeDiscountDisplay();
+                if (data.error && discountError) {
+                  discountError.style.display = 'block';
+                  discountError.textContent = data.error;
+                }
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              removeDiscountDisplay();
+              if (discountError) {
+                discountError.style.display = 'block';
+                discountError.textContent = 'An error occurred. Please try again.';
+              }
+            });
+          } else {
+            removeDiscountDisplay();
+          }
+        });
+      }
+
+      // Sync discount code input with hidden field
+      if (discountCodeInput && hiddenDiscountCode) {
+        discountCodeInput.addEventListener('input', function () {
+          hiddenDiscountCode.value = this.value;
+        });
+      }
+
+      // Add event listener for country change
+      if (countrySelect) {
+        countrySelect.addEventListener('change', handleCountryChange);
+        handleCountryChange();
+      }
+
+      // Add event listener for state dropdown change
+      if (originalStateField) {
+        originalStateField.addEventListener('change', updateShippingFee);
+      }
+
+      // Check if success message is present
+      const successMessage = document.querySelector('.alert-success');
+      if (successMessage) {
+        proceedToPayBtn.removeAttribute('disabled');
+      }
+
+      // Real-time validation for address fields
+      addressForm.addEventListener('submit', function (event) {
+        const inputs = addressForm.querySelectorAll('input[], select[]');
+        let allFilled = true;
+        inputs.forEach(input => {
+          if (!input.value.trim()) {
+            allFilled = false;
+          }
+        });
+        if (allFilled) {
+          proceedToPayBtn.removeAttribute('disabled');
+        }
+      });
+
+      // Character counter for order note
+      if (orderNote && charCount) {
+        orderNote.addEventListener('input', function() {
+          charCount.textContent = this.value.length;
+          if (this.value.length > 400) {
+            charCount.style.color = '#dc3545';
+          } else {
+            charCount.style.color = '';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

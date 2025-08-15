@@ -1,0 +1,347 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Account - GOES Clothing Brand</title>
+  <link rel="shortcut icon" href="{% static 'images/LOGO_ISOTYPE[1].png' %}" type="image/x-icon" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+    }
+    /* Navbar */
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .nav-link {
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: .5px;
+      margin: 0 .5rem;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      background: #fafafa;
+    }
+    .footer-links h5 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .footer-links a {
+      display: block;
+      margin-bottom: .5rem;
+      color: #555;
+      text-decoration: none;
+      font-size: .9rem;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .profile-card {
+      background: #f9f9f9;
+      padding: 2rem;
+      border-radius: .5rem;
+      margin-bottom: 2rem;
+    }
+    .order-card {
+      border: 1px solid #e5e5e5;
+      border-radius: .5rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      background: #fff;
+    }
+    .order-card h6 {
+      font-weight: 600;
+    }
+    .order-status {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #555;
+    }
+    .status-pending { color: #ff9800; }
+    .status-processing { color: #2196f3; }
+    .status-approved { color: #4caf50; }
+    .status-declined { color: #f44336; }
+    .status-delivered { color: #555; } /* For future use */
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
+    <div class="container">
+      <div class="mcb-column-inner mfn-module-wrapper mcb-column-inner-hh9pp43d mcb-item-header_logo-inner">
+        <a class="logo-wrapper" href="{% url 'home' %}">
+          <img style="width:100px;" src="{% static 'images/LOGO_20_TRANS[1].png'%}" alt="clothingstore2" />
+        </a>
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="collectionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Shop
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="collectionsDropdown">
+              {% for category in categories %}
+                <li><a class="dropdown-item" href="{% url 'shop' %}?category={{ category.id }}">{{ category.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'our_story' %}">Our Story</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'lookbook' %}">Look Book</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if user.is_authenticated %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3">
+              <a class="nav-link" href="{% url 'profile' %}" title="Your Account">
+                <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item me-3">
+              <a class="nav-link position-relative" href="{% url 'cart' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1h1a.5.5 0 0 1 .485.379L2.89 5H14.5a.5.5 0 0 1 .49.598l-1.5 6A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L1.01 2H.5a.5.5 0 0 1-.5-.5zM3.14 6l1.25 5h8.356l1.25-5H3.14z"/>
+                  <path d="M6 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 1a1 1 0 1 1 -2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                {% if cart_count > 0 %}
+                  <span class="badge bg-secondary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item me-3"><a class="btn btn-outline-primary" href="{% url 'login_user' %}">Login</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-5">
+    <h2 class="section-title text-center">My Account</h2>
+
+    <!-- Profile Info -->
+    <div class="profile-card">
+      <h5>Account Information</h5>
+      <p><strong>Name:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+    </div>
+
+    <!-- Address -->
+    <div class="profile-card">
+      <h5>Saved Address</h5>
+      {% if address %}
+        <p>
+          {{ user.first_name }} {{ user.last_name }}<br>
+          {{ address.street|default_if_none:"" }}<br>
+          {{ address.city|default_if_none:"" }}, {{ address.country|default_if_none:"" }}<br>
+          Phone: {{ address.phone_number|default_if_none:"Not provided" }}
+        </p>
+        <a href="{% url 'edit_address' %}" class="btn btn-outline-secondary btn-sm">Edit Address</a>
+      {% else %}
+        <p>No address saved.</p>
+        <a href="{% url 'edit_address' %}" class="btn btn-outline-secondary btn-sm">Add Address</a>
+      {% endif %}
+    </div>
+
+    <!-- Current Orders -->
+    <div class="profile-card">
+      <h5>Current Orders</h5>
+      {% if current_orders %}
+        {% for order in current_orders %}
+          <div class="order-card">
+            <h6>Order #{{ order.tx_ref }}</h6>
+            <p><strong>Date:</strong> {{ order.transaction_date|date:"F d, Y" }}</p>
+            <p><strong>Items:</strong> 
+              {% for product in order.products.all %}
+                {{ product.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            <p class="order-status">
+              Status: 
+              <span class="status-{{ order.transaction_status }}">
+                {{ order.transaction_status|capfirst }}
+              </span>
+            </p>
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-dark">View Details</a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No current orders.</p>
+      {% endif %}
+    </div>
+
+    <!-- Past Orders -->
+    <div class="profile-card">
+      <h5>Past Orders</h5>
+      {% if past_orders %}
+        {% for order in past_orders %}
+          <div class="order-card">
+            <h6>Order #{{ order.tx_ref }}</h6>
+            <p><strong>Date:</strong> {{ order.transaction_date|date:"F d, Y" }}</p>
+            <p><strong>Items:</strong> 
+              {% for product in order.products.all %}
+                {{ product.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            <p class="order-status">
+              Status: 
+              <span class="status-{{ order.transaction_status }}">
+                {{ order.transaction_status|capfirst }}
+              </span>
+            </p>
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-dark">View Details</a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No past orders.</p>
+      {% endif %}
+    </div>
+  </div>
+
+			<!-- Improved Footer -->
+			<footer id="mfn-footer-template" class="text-white" style="background-color: #000 !important; font-family: 'Poppins', sans-serif; border-top: 2px solid  #ffb3b3;">
+			<div class="container py-5">
+				<div class="row gy-4">
+
+				<!-- Contact Info -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Contact</h6>
+					<p class="mb-2" style="font-size: 1rem;">
+					<i class="fa fa-envelope me-2" style="color: red;"></i>
+					<a href="mailto:support@godoneveryside.com" class="text-white text-decoration-none">support@godoneveryside.com</a>
+					</p>
+					<p style="font-size: 1rem;">
+					<i class="fa fa-phone me-2" style="color: red;"></i>
+
+					</p>
+				</div>
+
+				<!-- Pages -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color: red; font-weight: 700; letter-spacing: 1.5px;">Quick Links</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					<li><a href="{% url 'lookbook' %}" class="text-white text-decoration-none">Look Book</a></li>
+					<li><a href="{% url 'shop' %}" class="text-white text-decoration-none">Shop</a></li>
+					<li><a href="{% url 'our_story' %}" class="text-white text-decoration-none">Our Story</a></li>
+					<li><a href="{% url 'cart' %}" class="text-white text-decoration-none">Cart</a></li>
+					<li><a href="{% url 'profile' %}" class="text-white text-decoration-none">Profile</a></li>
+					<li><a href="{% url 'policies' %}" class="text-white text-decoration-none">Policies</a></li>
+					</ul>
+				</div>
+
+				<!-- Collections -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Shop</h6>
+					<ul class="list-unstyled" style="font-size: 1rem;">
+					{% for category in categories %}
+						<li><a href="{% url 'shop' %}?category={{ category.id }}" class="text-white text-decoration-none" >{{ category.name }}</a></li>
+					{% empty %}
+						<li class="text-muted">No collections found.</li>
+					{% endfor %}
+					</ul>
+				</div>
+
+				<!-- Social Media -->
+				<div class="col-12 col-sm-6 col-md-3">
+					<h6 style="color:  red; font-weight: 700; letter-spacing: 1.5px;">Follow Us</h6>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="bi bi-instagram me-2" style="color: RED;"></i>
+					<a href="https://www.instagram.com/godoneveryside/" target="_blank" class="text-white text-decoration-none">@godoneveryside</a>
+					</p>
+					<p class="mb-1" style="font-size: 1rem;">
+					<i class="bi bi-tiktok me-2" style="color: RED;"></i>
+					<a href="https://www.tiktok.com/@godoneveryside" target="_blank" class="text-white text-decoration-none">TikTok</a>
+					</p>
+					<p style="font-size: 1rem;">
+					<i class="bi bi-facebook me-2" style="color: RED;"></i>
+					<a href="https://www.facebook.com/godoneveryside" target="_blank" class="text-white text-decoration-none">Facebook</a>
+					</p>
+				</div>
+
+				</div>
+
+				<!-- Footer Bottom -->
+				<div class="row mt-4 pt-3 border-top" style="border-color:  red !important;">
+				<div class="col text-center" style="font-size: 0.95rem;">
+					<span>© 2025 <strong style="color:  red;">GOES</strong></span>
+					<span class="mx-2">|</span>
+					<span>All Rights Reserved</span>
+					<span class="mx-2">|</span>
+					<a href="{% url 'policies' %}" class="text-decoration-underline" style="color:  red;">Privacy Policy</a>
+				</div>
+				</div>
+			</div>
+
+			<!-- Internal Styles -->
+			<style>
+				#mfn-footer-template a:hover {
+				color:  #ffb3b3 !important;
+				text-decoration: underline !important;
+				}
+
+				@media (max-width: 576px) {
+				#mfn-footer-template h6 {
+					font-size: 1rem;
+				}
+
+				#mfn-footer-template p,
+				#mfn-footer-template li {
+					font-size: 0.95rem;
+				}
+				}
+			</style>
+			</footer>
+
+  <!-- Mobile Sticky Footer Menu -->
+  <div class="mobile-footer-nav d-md-none d-flex justify-content-around align-items-center">
+    <a href="{% url 'home' %}" class="footer-icon">
+      <i class="bi bi-grid-fill"></i>
+    </a>
+    <a href="{% url 'cart' %}" class="footer-icon position-relative">
+      <i class="bi bi-bag-fill"></i>
+      {% if cart_count > 0 %}
+        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle badge-sm">{{ cart_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{% url 'profile' %}" class="footer-icon">
+      <i class="bi bi-person-fill"></i>
+    </a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
