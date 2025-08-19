@@ -910,6 +910,7 @@ def cart(request):
 
 
 def register(request):
+    categories = Category.objects.all()
     if request.user.is_authenticated:
         return redirect('home')
     else:
@@ -925,9 +926,11 @@ def register(request):
                 messages.error(request, 'Error creating account. Please check the form.')
         else:
             form = RegisterForm()
-    return render(request, 'GOESApp/register.html', {'form': form})
+    return render(request, 'GOESApp/register.html', {'form': form, 'categories': categories})
+
 
 def login_user(request):
+    categories = Category.objects.all()
     if request.user.is_authenticated:
         return redirect('home')
     else:
@@ -942,7 +945,8 @@ def login_user(request):
                 return redirect('home')
             else:
                 messages.error(request, 'Invalid email or password.')
-        return render(request, 'GOESApp/login.html', {'error_message': error_message})
+        return render(request, 'GOESApp/login.html', {'error_message': error_message, 'categories': categories})
+
 
 
 def password_reset_request(request):
