@@ -300,6 +300,108 @@
       transform: translateY(0);
     }
   </style>
+
+<style>
+        /* Gallery Section */
+        .gallery-container {
+            padding: 5rem 0;
+            background-color: #fff;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 0 1rem;
+        }
+        .gallery-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            cursor: pointer;
+            aspect-ratio: 3/4;
+            transition: transform 0.3s ease;
+        }
+        .gallery-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .gallery-image:hover {
+            transform: scale(1.03);
+        }
+        .gallery-image:hover img {
+            transform: scale(1.1);
+        }
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .gallery-image:hover .image-overlay {
+            opacity: 1;
+        }
+        .image-overlay h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .image-overlay p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Fullscreen Image Viewer */
+        .fullscreen-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .image-info {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            color: white;
+            max-width: 500px;
+        }
+        .image-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .image-info p {
+            font-size: 1rem;
+        } 
+</style>
+
 </head>
 <body>
 
@@ -436,6 +538,39 @@
       </div>
     </div>
   </section>
+
+<!-- Gallery Section -->
+<section class="gallery-container">
+    <div class="container">
+        <div class="lookbook-intro animate-on-scroll">
+            <h2>OUR LOOKBOOK GALLERY</h2>
+            <p>Explore our curated photoshoot collection showcasing the essence of GOES style</p>
+        </div>
+        <div class="gallery-grid">
+            {% for image in lookbook_images %}
+                <div class="gallery-image animate-on-scroll" data-image="{{ image.image.url }}" data-title="{{ image.title }}" data-description="{{ image.description }}">
+                    <img src="{{ image.image.url }}" alt="{{ image.title }}">
+                    <div class="image-overlay">
+                        <h3>{{ image.title }}</h3>
+                        <p>{{ image.description|truncatewords:10 }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center">
+                    <p>No lookbook images available yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Fullscreen Image Viewer -->
+<div class="fullscreen-viewer" id="fullscreenViewer">
+    <button class="close-button" id="closeViewer">&times;</button>
+    <img class="fullscreen-image" id="fullscreenImage" src="" alt="">
+</div>
+
+
 
   <!-- Featured Collection Section -->
   <section class="featured-section">
@@ -597,6 +732,34 @@
     animateOnScrollElements.forEach(element => {
       observer.observe(element);
     });
+    // Simplified Fullscreen Viewer
+    const galleryImages = document.querySelectorAll('.gallery-image');
+    const fullscreenViewer = document.getElementById('fullscreenViewer');
+    const fullscreenImage = document.getElementById('fullscreenImage');
+    const closeViewer = document.getElementById('closeViewer');
+
+    galleryImages.forEach(image => {
+        image.addEventListener('click', () => {
+            fullscreenImage.src = image.dataset.image;
+            fullscreenViewer.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    closeViewer.addEventListener('click', () => {
+        fullscreenViewer.style.display = 'none';
+        fullscreenImage.src = ''; // Clear the image source
+        document.body.style.overflow = 'auto';
+    });
+
+    fullscreenViewer.addEventListener('click', (e) => {
+        if (e.target === fullscreenViewer) {
+            fullscreenViewer.style.display = 'none';
+            fullscreenImage.src = ''; // Clear the image source
+            document.body.style.overflow = 'auto';
+        }
+    });
+
   </script>
 </body>
 </html>

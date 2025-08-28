@@ -17,7 +17,8 @@ from .models import (
     ProductImage,
     HomePageImages,
     DiscountCode,
-    OrderItem
+    OrderItem,
+    LookbookImage,
 )
 
 @admin.register(CustomUser)
@@ -124,3 +125,20 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('transaction', 'product', 'quantity', 'price')
     list_filter = ('transaction__transaction_status',)
     search_fields = ('transaction__tx_ref', 'product__name')
+
+# admin.py
+@admin.register(LookbookImage)
+class LookbookImageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_at', 'is_active')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title', 'description')
+    date_hierarchy = 'created_at'
+    actions = ['make_active', 'make_inactive']
+
+    def make_active(self, request, queryset):
+        queryset.update(is_active=True)
+    make_active.short_description = "Mark selected images as active"
+
+    def make_inactive(self, request, queryset):
+        queryset.update(is_active=False)
+    make_inactive.short_description = "Mark selected images as inactive"

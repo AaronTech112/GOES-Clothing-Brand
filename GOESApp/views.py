@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm , CheckoutForm, AddressForm, NewsletterForm
 from django.contrib import messages
-from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages, CustomUser, OrderItem, DiscountCode
+from .models import Cart, CartItem, Product, Category,Transaction, Newsletter, Color, Size, ProductImage, HomePageImages, CustomUser, OrderItem, DiscountCode, LookbookImage
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import uuid
@@ -218,64 +218,54 @@ def checkout(request):
 
     if request.method == 'POST':
         if 'proceed_to_pay' in request.POST:
-            form = CheckoutForm(request.POST, instance=address)
-            if not has_address and not form.is_valid():
-                messages.error(request, "Please save a valid delivery address before proceeding to payment.")
+            discount_code = request.POST.get('discount_code', '')
+            discount_amount = 0
+            applied_discount = False
+
+            if discount_code and subtotal >= 200000:
+                try:
+                    discount = DiscountCode.objects.get(code=discount_code, is_used=False, expires_at__gt=timezone.now())
+                    discount_amount = subtotal * (discount.discount_percentage / 100)
+                    applied_discount = True
+                except DiscountCode.DoesNotExist:
+                    messages.error(request, "Invalid or expired discount code.")
+                    return redirect('checkout')
+
+            # Use existing address to calculate shipping
+            if not address:
+                messages.error(request, "Please save a delivery address before proceeding to payment.")
                 return redirect('checkout')
-            
-            if form.is_valid():
-                # Apply discount if valid
-                discount_code = form.cleaned_data.get('discount_code')
-                if discount_code and subtotal >= 200000:
-                    try:
-                        discount = DiscountCode.objects.get(code=discount_code, is_used=False, expires_at__gt=timezone.now())
-                        discount_amount = subtotal * (discount.discount_percentage / 100)
-                        total_price = subtotal - discount_amount + shipping_fee
-                        applied_discount = True
-                    except DiscountCode.DoesNotExist:
-                        messages.error(request, "Invalid or expired discount code.")
-                        return redirect('checkout')
-                
-                # Save address if provided
-                address = form.save()
-                if not request.user.address:
-                    request.user.address = address
-                    request.user.save()
-                
-                # Recalculate shipping fee based on new address
-                country = form.cleaned_data.get('country', '').lower()
-                state = form.cleaned_data.get('state', '').lower()
-                if country == 'nigeria':
-                    if state in ['abuja', 'federal capital territory', 'fct']:
-                        shipping_fee = 2000
-                    else:
-                        shipping_fee = 5000
+
+            country = address.country.lower() if address.country else ''
+            state = address.state.lower() if address.state else ''
+            if country == 'nigeria':
+                if state in ['abuja', 'federal capital territory', 'fct']:
+                    shipping_fee = 2000
                 else:
-                    shipping_fee = 15000
-                total_price = (subtotal - discount_amount) + shipping_fee
-                
-                # Create transaction
-                tx_ref = f"txn-{uuid.uuid4().hex[:10]}"
-                order_note = request.POST.get('order_note', '')
-                transaction = Transaction.objects.create(
-                    user=request.user,
-                    amount=total_price,
-                    tx_ref=tx_ref,
-                    address=address,
-                    order_note=order_note,
-                    transaction_status='pending'
-                )
-                # Add products to the transaction
-                transaction.products.set([item.product for item in cart_items])
-                # Store discount code if applied
-                if discount_code and applied_discount:
-                    transaction.discount_code = DiscountCode.objects.get(code=discount_code)
-                    transaction.discount_code.is_used = True
-                    transaction.discount_code.save()
-                transaction.save()
-                return redirect('initiate_payment', transaction_id=transaction.id)
+                    shipping_fee = 5000
             else:
-                messages.error(request, "Please correct the errors in the form.")
+                shipping_fee = 15000
+
+            total_price = (subtotal - discount_amount) + shipping_fee
+
+            # Create transaction
+            tx_ref = f"txn-{uuid.uuid4().hex[:10]}"
+            order_note = request.POST.get('order_note', '')
+            transaction = Transaction.objects.create(
+                user=request.user,
+                amount=total_price,
+                tx_ref=tx_ref,
+                address=address,
+                order_note=order_note,
+                transaction_status='pending'
+            )
+            transaction.products.set([item.product for item in cart_items])
+            if discount_code and applied_discount:
+                transaction.discount_code = discount
+                discount.is_used = True
+                discount.save()
+            transaction.save()
+            return redirect('initiate_payment', transaction_id=transaction.id)
         else:
             # Handle address form submission
             form = CheckoutForm(request.POST, instance=address)
@@ -296,7 +286,35 @@ def checkout(request):
                 else:
                     shipping_fee = 15000
                 
-                total_price = subtotal + shipping_fee
+                total_price = (subtotal - discount_amount) + shipping_fee
+                
+                
+                messages.success(request, "Delivery address updated successfully.")
+                return redirect('checkout')
+            else:
+                messages.error(request, "Please correct the errors in the form.")
+    elif 'update_address' in request.POST:
+            # Handle address form submission
+            form = CheckoutForm(request.POST, instance=address)
+            if form.is_valid():
+                address = form.save()
+                if not request.user.address:
+                    request.user.address = address
+                    request.user.save()
+                
+                # Recalculate shipping fee based on new address
+                country = form.cleaned_data.get('country', '').lower()
+                state = form.cleaned_data.get('state', '').lower()
+                if country == 'nigeria':
+                    if state in ['abuja', 'federal capital territory', 'fct']:
+                        shipping_fee = 2000
+                    else:
+                        shipping_fee = 5000
+                else:
+                    shipping_fee = 15000
+                
+                total_price = (subtotal - discount_amount) + shipping_fee
+                
                 
                 messages.success(request, "Delivery address updated successfully.")
                 return redirect('checkout')
@@ -504,10 +522,10 @@ def send_order_confirmation_email(request, transaction):
 
     text_content = f"""Dear {transaction.user.first_name} {transaction.user.last_name},
 
-Thank you for your purchase from GOES Clothing!
+Thank you for your purchase from GOES!
 
 Order Details:
-Order Confirmation 
+Order Number: {transaction.id}
 Date: {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}
 Subtotal: ₦{subtotal}
 {discount_code_text}Shipping Fee: ₦{shipping_fee}
@@ -525,7 +543,7 @@ Your order is being processed and will be shipped soon.
 
 Thank you for shopping with us!
 
-GOES Clothing Team
+GOES Team
 God On Every Side
 """
     
@@ -550,8 +568,8 @@ God On Every Side
     </head>
     <body>
         <div class="logo">
-            <img src="https://www.godoneveryside.com/static/images/LOGO_20_TRANS[1].png" alt="GOES Clothing Logo">
-            <h1>GOES - God On Every Side</h1>
+            <img src="https://www.godoneveryside.com/static/images/LOGO_20_TRANS[1].png" alt="GOES  Logo">
+            <h1>GOD ON EVERY SIDE</h1>
         </div>
 '''
     
@@ -583,11 +601,11 @@ God On Every Side
     dynamic_content = (
         f"<h2>Order Confirmation</h2>\n"
         f"<p>Dear {transaction.user.first_name} {transaction.user.last_name},</p>\n"
-        f"<p>Thank you for your purchase from GOES Clothing!</p>\n\n"
+        f"<p>Thank you for your purchase from GOES !</p>\n\n"
         
         f"<div class=\"order-details\">\n"
         f"<h3>Order Details:</h3>\n"
-        f"<p><strong>Order Confirmation</strong> </p>\n"
+        f"<p><strong>Order Number:</strong> {transaction.tx_ref}</p>\n"
         f"<p><strong>Date:</strong> {transaction.transaction_date.strftime('%Y-%m-%d %H:%M')}</p>\n"
         f"<p><strong>Subtotal:</strong> ₦{subtotal}</p>\n"
         f"{discount_html}\n"
@@ -607,9 +625,9 @@ God On Every Side
         f"<p>Thank you for shopping with us!</p>\n\n"
         
         f"<div class=\"footer\">\n"
-        f"<p><strong>GOES Clothing Team</strong></p>\n"
+        f"<p><strong>GOES Team</strong></p>\n"
         f"<p>God On Every Side</p>\n"
-        f"<p>© {time.strftime('%Y')} GOES Clothing. All rights reserved.</p>\n"
+        f"<p>© {time.strftime('%Y')} GOES. All rights reserved.</p>\n"
         f"</div>\n"
         f"</body>\n"
         "</html>"
@@ -1083,28 +1101,42 @@ from django.views.decorators.http import require_POST
 from .models import DiscountCode
 from django.utils import timezone
 
-@require_POST
+from decimal import Decimal
+from django.http import JsonResponse
+from django.utils import timezone
+from .models import DiscountCode  # Adjust import based on your app structure
+
 def validate_discount_code(request):
-    code = request.POST.get('discount_code')
-    subtotal = float(request.POST.get('subtotal', 0))
-    if not code or subtotal < 200000:
-        return JsonResponse({'success': False, 'error': 'Invalid code or subtotal less than ₦200,000.'})
+    if request.method == 'POST':
+        code = request.POST.get('discount_code')
+        subtotal_str = request.POST.get('subtotal', '0')
+        subtotal = Decimal(subtotal_str)
+        
+        if not code:
+            return JsonResponse({'success': False, 'error': 'No discount code provided.'})
+        
+        if subtotal < Decimal('200000'):
+            return JsonResponse({'success': False, 'error': 'Subtotal must be at least ₦200,000 to apply discount.'})
+        
+        try:
+            discount = DiscountCode.objects.get(code=code, is_used=False, expires_at__gt=timezone.now())
+            discount_amount = subtotal * (discount.discount_percentage / Decimal('100'))
+            return JsonResponse({
+                'success': True,
+                'discount_amount': float(discount_amount),
+                'discount_percentage': float(discount.discount_percentage)
+            })
+        except DiscountCode.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Invalid or expired discount code.'})
     
-    try:
-        discount = DiscountCode.objects.get(code=code, is_used=False, expires_at__gt=timezone.now())
-        discount_amount = subtotal * (float(discount.discount_percentage) / 100)  # Convert Decimal to float
-        return JsonResponse({
-            'success': True,
-            'discount_amount': discount_amount,
-            'total_price': subtotal - discount_amount  # Note: Shipping fee added server-side
-        })
-    except DiscountCode.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Invalid or expired discount code.'})
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 # views.py
 def lookbook(request):
     categories = Category.objects.all()
     cart_count = 0
+    lookbook_images = LookbookImage.objects.filter(is_active=True)  # Add this line
+    
     if request.user.is_authenticated:
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart_count = cart.items.count()
@@ -1112,5 +1144,6 @@ def lookbook(request):
     context = {
         'categories': categories,
         'cart_count': cart_count,
+        'lookbook_images': lookbook_images,  # Add this to context
     }
     return render(request, 'GOESApp/lookbook.html', context)

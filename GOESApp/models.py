@@ -11,7 +11,7 @@ class Address(models.Model):
     phone_number = models.CharField(max_length=15, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.street}, {self.city}, {self.state}, {self.country}"
+        return f"{self.full_name},{self.phone_number},{self.street}, {self.city}, {self.state}, {self.country}"
 
     class Meta:
         verbose_name = 'Address'
@@ -236,3 +236,15 @@ class OrderItem(models.Model):
     def total_price(self):
         return self.price * self.quantity
     
+class LookbookImage(models.Model):
+    title = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='lookbook/%Y/%m/%d/')
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
