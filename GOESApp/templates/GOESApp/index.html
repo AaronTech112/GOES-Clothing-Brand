@@ -6958,7 +6958,6 @@
 				</div>
 				<form method="get" action="{% url 'newsletter_signup' %}" id="newsletterForm" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; flex: 1 1 320px; min-width: 220px;">
 					{% csrf_token %}
-					<input type="email" name="email" id="newsletterEmail" placeholder="Your email address" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" style="padding: 12px 18px; border-radius: 8px; border: 1.5px solid #ffb3b3; font-size: 1.08rem; font-family: 'Poppins',sans-serif; outline: none; flex: 1 1 180px; min-width: 120px; background: #fff !important; color: black !important;">
 					<button type="submit" id="subscribeButton" style="margin-top: -18px; padding: 12px 28px; border-radius: 8px; background: red !important; color: #fff !important; font-family: 'Poppins',sans-serif; font-weight: 600; font-size: 1.08rem; border: none; transition: background 0.2s; box-shadow: 0 2px 8px 0 rgba(255,99,132,0.13); display: flex; align-items: center;">Subscribe</button>
 				</form>
 			</div>
@@ -7637,7 +7636,7 @@
 	</script>
 	
 <!-- Discount Modal -->
-{% comment %} <div class="modal fade" id="discountModal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
+<div class="modal fade" id="discountModal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-body p-0">
@@ -7672,7 +7671,7 @@
       </div>
     </div>
   </div>
- {% endcomment %}
+
 
 <style>
 .modal-lg {
