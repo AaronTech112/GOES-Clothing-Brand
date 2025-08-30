@@ -1,0 +1,430 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8" />
+    <title>GOES – God On Every Side</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="shortcut icon" href="{% static 'images/LOGO_ISOTYPE[1].png' %}" type="image/x-icon" />
+    <meta name="theme-color" content="#ffffff" />
+    
+    <!-- Essential CSS -->
+    <link rel='stylesheet' href="{% static 'wp-content/plugins/contact-form-7/includes/css/styles.css' %}" type='text/css' media='all' />
+    <link rel='stylesheet' href="{% static 'wp-content/plugins/woocommerce/assets/css/woocommerce-layout.css' %}" type='text/css' media='all' />
+    <link rel='stylesheet' href="{% static 'wp-content/plugins/woocommerce/assets/css/woocommerce-smallscreen.css' %}" type='text/css' media='only screen and (max-width: 768px)' />
+    <link rel='stylesheet' href="{% static 'wp-content/plugins/woocommerce/assets/css/woocommerce.css' %}" type='text/css' media='all' />
+    
+    <!-- Custom Styles -->
+    <style>
+        /* Essential Global Styles */
+        :root {
+            --wp--preset--color--black: #000000;
+            --wp--preset--color--white: #ffffff;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #ffffff;
+        }
+        
+        .navbar-brand img {
+            height: 50px;
+        }
+        
+        .desktop-nav {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-nav {
+                display: block;
+            }
+            
+            .mobile-menu-toggle {
+                cursor: pointer;
+            }
+            
+            .mobile-dropdown-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: #fff;
+                z-index: 999;
+                padding: 20px;
+            }
+        }
+        
+        /* Footer Styles */
+        .footer {
+            background-color: #f8f9fa;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .social-icons {
+            margin-bottom: 20px;
+        }
+        
+        .social-icons a {
+            margin: 0 10px;
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .footer-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Discount Modal */
+        .discount-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .discount-container {
+            display: flex;
+            width: 800px;
+            max-width: 90%;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .discount-image-section {
+            flex: 1;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            min-height: 400px;
+        }
+        
+        .discount-content-section {
+            flex: 1;
+            padding: 40px;
+            position: relative;
+        }
+        
+        .btn-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            cursor: pointer;
+        }
+    </style>
+    
+    <!-- FontAwesome and Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="mfn-header-template">
+        <nav class="navbar">
+            <!-- Logo -->
+            <a class="navbar-brand" href="">
+                <img src="{% static 'images/LOGO_ISOTYPE[1].png' %}" alt="GOES Logo">
+            </a>
+            
+            <!-- Mobile Search -->
+            <div class="mobile-search">
+                <i class="fas fa-search search-icon"></i>
+                <div class="search-form" style="display: none;">
+                    <form action="{% url 'shop' %}" method="get">
+                        <input type="text" name="q" placeholder="Search...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav">
+                <!-- Desktop Search -->
+                <div class="desktop-search">
+                    <form action="{% url 'shop' %}" method="get">
+                        <input type="text" name="q" placeholder="Search...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="nav-links">
+                    <div class="dropdown">
+                        <a href="{% url 'shop' %}">Shop</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'shop' %}?category=hoodies">Hoodies</a>
+                            <a class="dropdown-item" href="{% url 'shop' %}?category=pants">Pants</a>
+                            <a class="dropdown-item" href="{% url 'shop' %}?category=accessories">Accessories</a>
+                        </div>
+                    </div>
+                    <a href="{% url 'our_story' %}">Our Story</a>
+                    <a href="{% url 'lookbook' %}">Look Book</a>
+                </div>
+                
+                <!-- User Icons -->
+                <div class="user-icons">
+                    <a href="{% url 'cart' %}" class="cart-icon"><i class="fas fa-shopping-cart"></i></a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="user-icon"><i class="fas fa-user"></i></a>
+                    <a href="{% url 'logout' %}" class="logout-icon"><i class="fas fa-sign-out-alt"></i></a>
+                    {% else %}
+                    <a href="{% url 'login_user' %}" class="login-icon"><i class="fas fa-user"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Toggle -->
+            <div class="mobile-nav">
+                <div class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="mobile-dropdown-menu">
+                    <div class="mobile-menu-header">
+                        <span>Menu</span>
+                        <i class="fas fa-times close-menu"></i>
+                    </div>
+                    <div class="mobile-menu-items">
+                        <a href="{% url 'shop' %}">Shop</a>
+                        <a href="{% url 'shop' %}?category=hoodies">Hoodies</a>
+                        <a href="{% url 'shop' %}?category=pants">Pants</a>
+                        <a href="{% url 'shop' %}?category=accessories">Accessories</a>
+                        <a href="{% url 'our_story' %}">Our Story</a>
+                        <a href="{% url 'lookbook' %}">Look Book</a>
+                        <a href="{% url 'cart' %}">Cart</a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}">Profile</a>
+                        <a href="{% url 'logout' %}">Logout</a>
+                        {% else %}
+                        <a href="{% url 'login_user' %}">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div id="Content">
+        <!-- Revolution Slider -->
+        <div class="rev_slider_wrapper">
+            <div id="rev_slider" class="rev_slider">
+                <img src="{% static 'images/slider/slider1.jpg' %}" alt="Slider Image" class="slider-image">
+                <div class="slider-content">
+                    <h2>NEW COLLECTION</h2>
+                    <a href="{% url 'shop' %}" class="shop-now-btn">Shop Now</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Featured Products Section -->
+        <section class="mcb-section">
+            <div class="mcb-wrap">
+                <div class="mcb-item">
+                    <h2 class="title">CARRY DIVINE STRENGTH: GOES CONQUEROR DENIM JORT</h2>
+                    <div class="product-image">
+                        <img src="{% static 'images/products/product1.jpg' %}" alt="Product Image">
+                    </div>
+                    <a href="{% url 'shop' %}" class="discover-more-btn">DISCOVER MORE</a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mcb-section">
+            <div class="mcb-wrap">
+                <div class="mcb-item">
+                    <h2 class="title">EVERY STEP BLESSED: HERITAGE CREW SOCKS</h2>
+                    <div class="product-image">
+                        <img src="{% static 'images/products/product2.jpg' %}" alt="Product Image">
+                    </div>
+                    <a href="{% url 'shop' %}" class="discover-more-btn">DISCOVER MORE</a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mcb-section">
+            <div class="mcb-wrap">
+                <div class="mcb-item">
+                    <h2 class="title">ELEVATE YOUR CORE: GOES TANK TOP</h2>
+                    <div class="product-image">
+                        <img src="{% static 'images/products/product3.jpg' %}" alt="Product Image">
+                    </div>
+                    <a href="{% url 'shop' %}" class="discover-more-btn">DISCOVER MORE</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.tiktok.com/" target="_blank"><i class="fab fa-tiktok"></i></a>
+            <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook"></i></a>
+        </div>
+        <div class="copyright">
+            &copy; {% now "Y" %} GOES - God On Every Side. All Rights Reserved.
+        </div>
+        <div class="privacy-policy">
+            <a href="{% url 'policies' %}">Privacy Policy</a>
+        </div>
+    </footer>
+    
+    <!-- Sticky Footer Menu (Mobile) -->
+    <div class="footer-menu d-md-none">
+        <a href="{% url 'shop' %}"><i class="fas fa-store"></i> Shop</a>
+        <a href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i> Cart</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
+        {% else %}
+        <a href="{% url 'login_user' %}"><i class="fas fa-user"></i> Login</a>
+        {% endif %}
+    </div>
+
+    <!-- Discount Modal -->
+    <div id="discountModal" class="discount-modal">
+        <div class="discount-container">
+            <div class="discount-image-section" style="background-image: url('{% static "images/discount-bg.jpg" %}');">
+                <div class="discount-overlay"></div>
+            </div>
+            <div class="discount-content-section">
+                <span class="btn-close discount-close">&times;</span>
+                <h2 class="discount-title">Welcome to GOES</h2>
+                <div class="discount-amount">15% OFF</div>
+                <p class="discount-description">Sign up for our newsletter and get 15% off your first order!</p>
+                
+                <form id="discountForm" action="" method="post">
+                    {% csrf_token %}
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="discountEmail" name="email" placeholder="name@example.com" required>
+                        <label for="discountEmail">Email address</label>
+                    </div>
+                    <button type="submit" class="btn btn-dark discount-submit-btn" id="unlockOfferBtn">UNLOCK OFFER</button>
+                </form>
+                
+                <div id="discountCodeDisplay" class="discount-code-container d-none">
+                    <div class="code-box">
+                        <span>Your discount code:</span>
+                        <span id="discountCode" class="discount-code"></span>
+                        <p class="code-instructions">Use this code at checkout</p>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="#" class="discount-decline" id="noThanksBtn">No, thanks</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Essential JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile search toggle
+        document.querySelector('.search-icon').addEventListener('click', function() {
+            document.querySelector('.search-form').style.display = 
+                document.querySelector('.search-form').style.display === 'none' ? 'block' : 'none';
+        });
+        
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            document.querySelector('.mobile-dropdown-menu').style.display = 'block';
+        });
+        
+        document.querySelector('.close-menu').addEventListener('click', function() {
+            document.querySelector('.mobile-dropdown-menu').style.display = 'none';
+        });
+        
+        // Discount modal
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.getElementById('discountModal').style.display = 'flex';
+            }, 4000); // 4 seconds delay
+            
+            // Close modal when clicking the X
+            document.querySelector('.discount-close').addEventListener('click', function() {
+                document.getElementById('discountModal').style.display = 'none';
+            });
+            
+            // Close modal when clicking "No, thanks"
+            document.getElementById('noThanksBtn').addEventListener('click', function() {
+                document.getElementById('discountModal').style.display = 'none';
+            });
+            
+            // Handle form submission
+            document.getElementById('discountForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var form = this;
+                var formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('discountForm').classList.add('d-none');
+                        document.getElementById('discountCode').textContent = data.code;
+                        document.getElementById('discountCodeDisplay').classList.remove('d-none');
+                    } else {
+                        alert(data.error || 'An error occurred. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

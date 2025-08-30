@@ -28,6 +28,7 @@ urlpatterns = [
     path('lookbook/', views.lookbook, name='lookbook'),
     path('subscriber-count/', views.subscriber_count, name='subscriber_count'), path('generate-discount-code/', views.generate_discount_code, name='generate_discount_code'),
     path('validate-discount-code/', views.validate_discount_code, name='validate_discount_code'),
+    path('newsletter-signup/', views.newsletter_signup, name='newsletter_signup'),
     
     # Password Reset URLs
     path('password_reset/', views.password_reset_request, name='password_reset'),

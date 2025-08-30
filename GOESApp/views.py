@@ -18,30 +18,17 @@ from django.db.models.query_utils import Q
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
+from django.views.decorators.csrf import csrf_exempt
 
 def home(request):
-    if request.method == 'POST':
-        form = NewsletterForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            if not Newsletter.objects.filter(email=email).exists():
-                Newsletter.objects.create(email=email)
-                messages.success(request, 'Thank you for subscribing!')
-                return redirect('home')
-            else:
-                messages.warning(request, 'This email is already subscribed.')
-                return redirect('home')    
-    else:
-        form = NewsletterForm()
-        
-    products = Product.objects.filter(is_active=True).order_by('name')  # Fetch all products
+    # Existing GET logic
+    products = Product.objects.filter(is_active=True).order_by('name')
     home_images = HomePageImages.objects.all()
     categories = Category.objects.all()
     context = {
         'products': products,
         'categories': categories,
-        'form': form,
-        'home_images':home_images,
+        'home_images': home_images,
     }
     return render(request, 'GOESApp/index.html', context)
 
@@ -49,6 +36,18 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 import time
 import requests
+def newsletter_signup(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if not email:
+            messages.error(request, 'Email is required.')
+        elif Newsletter.objects.filter(email=email).exists():
+            messages.warning(request, 'This email is already subscribed.')
+        else:
+            Newsletter.objects.create(email=email)
+            messages.success(request, 'You have subscribed! Stay tuned for messages.')
+        return redirect('newsletter_signup')
+    return render(request, 'GOESApp/newsletter_signup.html')
 
 def send_newsletter(request):
     if request.method == 'POST':

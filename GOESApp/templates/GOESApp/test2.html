@@ -7672,7 +7672,7 @@
       </div>
     </div>
   </div>
-
+</div>
 
 <style>
 .modal-lg {
@@ -7910,11 +7910,10 @@
             // Close modal when clicking outside of it
             window.addEventListener('click', function(event) {
                 if (event.target == document.getElementById('discountModal')) {
-                    const modal = document.getElementById('discountModal');
-                    modal.style.display = 'none';
-                    modal.style.zIndex = '-3000';
+                    document.getElementById('discountModal').style.display = 'none';
                 }
             });
+            
             // Newsletter form validation
             const newsletterForm = document.getElementById('newsletterForm');
             if (newsletterForm) {
