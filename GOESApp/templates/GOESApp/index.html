@@ -7635,282 +7635,240 @@
 		if (window.RS_MODULES.checkMinimal !== undefined) { window.RS_MODULES.checkMinimal(); };
 	</script>
 	
+<!-- Discount Banner -->
+<div class="discount-banner" id="discountBanner">
+  <div class="discount-icon">
+    <i class="fas fa-tag"></i>
+  </div>
+  <div class="discount-text">
+    5% OFF
+  </div>
+</div>
+
 <!-- Discount Modal -->
 <div class="modal fade" id="discountModal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
+    <div class="modal-content border-0">
       <div class="modal-body p-0">
         <div class="discount-container">
           <div class="discount-image-section">
             <img src="{% static 'images/LOGO_ISOTYPE[1].png' %}" alt="GOES Logo" class="discount-logo">
             <div class="discount-overlay"></div>
           </div>
-          <div class="discount-content-section">
-            <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close"></button>
-            <h2 class="discount-title">Special Offer!</h2>
-            <div class="discount-amount">5% OFF</div>
-            <p class="discount-description">On orders over ₦200,000</p>
-            <form id="discountForm" method="POST" action="{% url 'generate_discount_code' %}" class="discount-form">
+          <div class="discount-content-section" style="justify-content: center; align-items: center;">
+            <button type="button" class="btn-close position-absolute top-3 end-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            
+            <div class="text-center mb-4">
+              <h2 class="discount-title display-4 fw-bold mb-3">Special Offer!</h2>
+              <div class="discount-amount display-1 fw-bold text-primary mb-2">5% OFF</div>
+              <p class="discount-description lead">On orders over ₦200,000</p>
+            </div>
+
+            <form id="discountForm" method="POST" action="{% url 'generate_discount_code' %}" class="discount-form mx-auto" style=" max-width: 400px; justify-content: center; align-items: center;">
               {% csrf_token %}
-              <div class="form-floating mb-3">
-                <input type="email" class="form-control" id="emailInput" name="email" placeholder="name@example.com" required>
+              <div class="form-floating mb-4" style="justify-content: center; align-items: center;margin-left: 62px;">
+                <input type="email" class="form-control form-control-lg border-2" id="emailInput" name="email" placeholder="name@example.com" required style="justify-content: center; align-items: center; ">
                 <label for="emailInput">Enter your email address</label>
               </div>
-              <button type="submit" class="btn btn-primary discount-submit-btn">GET MY DISCOUNT CODE</button>
+              <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 fw-bold">GET MY DISCOUNT CODE</button>
             </form>
-            <div id="discountCodeDisplay" class="discount-code-container mt-4 d-none">
-              <div class="code-box">
-                <strong>Your Discount Code:</strong>
-                <span id="discountCode" class="discount-code"></span>
+
+            <div id="discountCodeDisplay" class="discount-code-container mt-4 text-center d-none">
+              <div class="code-box bg-light p-4 rounded-3 mb-3">
+                <p class="mb-2 text-muted">Your Discount Code:</p>
+                <span id="discountCode" class="discount-code display-6 fw-bold text-primary"></span>
               </div>
-              <p class="code-instructions">Use this code at checkout to redeem your discount!</p>
+              <p class="code-instructions text-muted">Use this code at checkout to redeem your discount!</p>
             </div>
-            <button type="button" class="btn btn-link discount-decline" data-bs-dismiss="modal">No thanks, I'll pay full price</button>
+
+            <div class="text-center mt-4">
+              <button type="button" class="btn btn-link text-muted text-decoration-none discount-decline" data-bs-dismiss="modal">
+                No thanks, I'll pay full price
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
+</div>
 
 <style>
-.modal-lg {
-  max-width: 800px;
-}
+	.modal-content {
+	overflow: hidden;
+	border-radius: 1rem;
+	}
 
-.discount-container {
-  display: flex;
-  min-height: 500px;
-}
+	.discount-container {
+	display: flex;
+	min-height: 200px;
+	}
 
-.discount-image-section {
-  flex: 1;
-  background: linear-gradient(45deg, #000000, #333333);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
+	.discount-image-section {
+	flex: 1;
+	position: relative;
+	background: linear-gradient(45deg, #000000, #2c2c2c);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	}
 
-.discount-logo {
-  width: 80%;
-  max-width: 200px;
-  position: relative;
-  z-index: 2;
-  animation: pulse 2s infinite;
-}
+	.discount-logo {
+	width: 40%;
+	max-width: 100px;
+	position: relative;
+	z-index: 2;
+	}
 
-.discount-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.7) 100%);
-  z-index: 1;
-}
+	.discount-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.3) 100%);
+	z-index: 1;
+	}
 
-.discount-content-section {
-  flex: 1;
-  padding: 40px;
-  position: relative;
-  background: #ffffff;
-}
+	.discount-content-section {
+	flex: 1;
+	padding: 3rem;
+	position: relative;
+	background: #ffffff;
+	}
 
-.btn-close {
-  right: 20px;
-  top: 20px;
-}
+	.discount-title {
+	color: #333;
+	margin-bottom: 1rem;
+	}
 
-.discount-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 10px;
-}
+	.discount-amount {
+	color: #007bff;
+	font-weight: 600;
+	letter-spacing: -1px;
+	}
 
-.discount-amount {
-  font-size: 64px;
-  font-weight: 800;
-  color: #000;
-  margin: 20px 0;
-  letter-spacing: -2px;
-}
+	.form-control:focus {
+	border-color: #007bff;
+	box-shadow: 0 0 0 0.25rem rgba(0,123,255,0.15);
+	}
 
-.discount-description {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 30px;
-}
+	.btn-primary {
+	background: #007bff;
+	border: none;
+	padding: 0.8rem 2rem;
+	transition: all 0.3s ease;
+	}
 
-.form-floating > .form-control {
-  padding: 1rem;
-  height: calc(3.5rem + 2px);
-  line-height: 1.25;
-}
+	.btn-primary:hover {
+	background: #0056b3;
+	transform: translateY(-2px);
+	}
 
-.discount-submit-btn {
-  width: 100%;
-  padding: 15px;
-  font-weight: 600;
-  font-size: 16px;
-  background-color: #000;
-  border: none;
-  transition: all 0.3s ease;
-}
+	.code-box {
+	border: 2px dashed #007bff;
+	background: rgba(0,123,255,0.05);
+	}
 
-.discount-submit-btn:hover {
-  background-color: #333;
-  transform: translateY(-2px);
-}
+	.discount-code {
+	letter-spacing: 2px;
+	}
 
-.discount-decline {
-  color: #999;
-  text-decoration: none;
-  font-size: 14px;
-  margin-top: 20px;
-}
+	.discount-decline:hover {
+	color: #0056b3 !important;
+	}
 
-.discount-decline:hover {
-  color: #666;
-}
-
-.discount-code-container {
-  text-align: center;
-}
-
-.code-box {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  margin: 20px 0;
-}
-
-.discount-code {
-  display: block;
-  font-size: 24px;
-  font-weight: 700;
-  color: #000;
-  margin-top: 10px;
-}
-
-.code-instructions {
-  font-size: 14px;
-  color: #666;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@media (max-width: 768px) {
-  .discount-container {
-    flex-direction: column;
-  }
-  
-  .discount-image-section {
-    height: 200px;
-  }
-  
-  .discount-content-section {
-    padding: 30px 20px;
-  }
-  
-  .discount-amount {
-    font-size: 48px;
-  }
-}
+	@media (max-width: 768px) {
+	.discount-container {
+		flex-direction: column;
+	}
+	
+	.discount-image-section {
+		min-height: 100px;
+	}
+	
+	.discount-content-section {
+		padding: 1rem;
+	}
+	}
 </style>
 
-<!-- JavaScript to show modal on page load -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var discountModal = new bootstrap.Modal(document.getElementById('discountModal'), {
-      backdrop: 'static', // Prevent closing by clicking outside
-      keyboard: false // Prevent closing with ESC key
-    });
-    discountModal.show();
-  });
-</script>
+<style>
+  /* Discount Banner Styles */
+  .discount-banner {
+    position: fixed;
+    bottom: 90px;
+    left: 20px;
+    background: #000;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+  }
 
-<!-- JavaScript to handle form submission and display discount code -->
-<script>
-  document.getElementById('discountForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var form = this;
-    var formData = new FormData(form);
-    
-    fetch(form.action, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        document.getElementById('discountForm').classList.add('d-none');
-        document.getElementById('discountCode').textContent = data.code;
-        document.getElementById('discountCodeDisplay').classList.remove('d-none');
-      } else {
-        alert(data.error || 'An error occurred. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
-    });
-  });
-</script>
+  .discount-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+
+  .discount-icon {
+    margin-right: 10px;
+  }
+
+  .discount-text {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  /* Existing Modal Styles */
+  .modal-lg {
+    max-width: 800px;
+  }
+
+
+  /* ... (rest of your existing styles) ... */
+</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Show discount modal after 4 seconds (existing logic)
-    setTimeout(function() {
-      document.getElementById('discountModal').style.display = 'flex';
-    }, 4000); // 4 seconds delay
-
-    // Close modal when clicking the X (existing logic)
-    document.querySelector('.discount-close').addEventListener('click', function() {
-      document.getElementById('discountModal').style.display = 'none';
+    // Initialize the banner click handler
+    document.getElementById('discountBanner').addEventListener('click', function() {
+      var discountModal = new bootstrap.Modal(document.getElementById('discountModal'));
+      discountModal.show();
     });
 
-    // Close modal when clicking "No, thanks" (existing logic)
-    document.getElementById('noThanksBtn').addEventListener('click', function() {
-      document.getElementById('discountModal').style.display = 'none';
-    });
-
-    // Handle the unlock offer button (existing logic)
-    document.getElementById('unlockOfferBtn').addEventListener('click', function() {
-      const emailInput = document.getElementById('discountEmail');
-      const email = emailInput.value;
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    // Handle form submission
+    document.getElementById('discountForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var form = this;
+      var formData = new FormData(form);
       
-      if (email && emailPattern.test(email)) {
-        window.location.href = "{% url 'shop' %}";
-      } else {
-        alert('Please enter a valid email address');
-        emailInput.focus();
-      }
-    });
-
-    // Close modal when clicking outside of it (existing logic)
-    window.addEventListener('click', function(event) {
-      if (event.target == document.getElementById('discountModal')) {
-        const modal = document.getElementById('discountModal');
-        modal.style.display = 'none';
-        modal.style.zIndex = '-3000';
-      }
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('discountForm').classList.add('d-none');
+          document.getElementById('discountCode').textContent = data.code;
+          document.getElementById('discountCodeDisplay').classList.remove('d-none');
+        } else {
+          alert(data.error || 'An error occurred. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
     });
   });
 </script>
